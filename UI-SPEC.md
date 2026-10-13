@@ -41,25 +41,22 @@ Pages, layout, components, motion and responsive behavior. Visual tokens (colors
 | Thai meaning | `body-large` 18 px | 17 px |
 | Paragraphs, list text | `body` 16 px | 16 px |
 | Numbers, counts, Q labels | `mono-label` 14 px uppercase (`body-muted` on light) | 13 px |
-| Footer, small print | `micro` 12 px | 12 px |
 
 ## 3. App shell
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ [mark] Nihongo Notes        คำศัพท์    แนวสอบ          JN60101 │  navbar 64 px (phone 56 px)
+│ [mark] Nihongo Notes        คำศัพท์    แนวสอบ          [share] │  navbar 64 px (phone 56 px)
 ├──────────────────────────────────────────────────────────────┤
 │                         page content                         │
-├──────────────────────────────────────────────────────────────┤
-│ footer (primary #17171c): course name, offline status, micro  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-There is no announcement bar.
+There is no announcement bar and no footer: the page simply ends after its content (bottom spacing 80 px).
 
-- **Navbar**: sticky, canvas background, hairline bottom border. Desktop and tablet use three zones per DESIGN: mark + wordmark left, the two links "คำศัพท์" and "แนวสอบ" centered, mono label "JN60101" right. The active link has a 2 px ink underline that slides between links (Motion `layoutId`).
-- **Phone (< 768)**: no hamburger. With only two destinations the links stay visible: mark (no wordmark) left, the two links right as 44 px high text tabs with the same sliding underline; the "JN60101" label is hidden. Navbar height 56 px.
-- **Footer**: slim `footer-newsletter` look without the form: course name, "ใช้งานออฟไลน์ได้" when the service worker is ready, last build date. Muted links, white labels.
+- **Navbar**: sticky, canvas background, hairline bottom border. Desktop and tablet use three zones per DESIGN: mark + wordmark left, the two links "คำศัพท์" and "แนวสอบ" centered, a coral share button (44 px square, radius 8, share icon, `aria-label` "แชร์เว็บไซต์") right. The active link has a 2 px ink underline that slides between links (Motion `layoutId`).
+- **Phone (< 768)**: no hamburger. With only two destinations the links stay visible: mark (no wordmark) left, the two links right as 44 px high text tabs with the same sliding underline; the share button stays at the right end. Navbar height 56 px. The course code is not shown in the navbar (it stays in the vocabulary page hero).
+- **Share dialog** (same as Digital Logic Notes): a press on the share button opens a centered white card (radius 16, max width 420) over a dimmed, blurred page (backdrop blur 6 px). The card has the title "แชร์เว็บไซต์", the hint "สแกน QR หรือคัดลอกลิงก์", a QR code of the site address, and the address in a read-only field with a coral copy button inside it (the icon turns into a check and a polite live region says "คัดลอกลิงก์แล้ว"). A cross, Esc or a press outside closes it. Focus is trapped while open and returns to the share button; the page scroll is locked. The QR encoder is our own (`lib/qr.ts`, byte mode, level M), no dependency.
 - **Toast host**: bottom-left dark toast (`agent-console-card` colors), for "อัปเดตเป็นเวอร์ชันล่าสุดแล้ว" and "ใช้งานออฟไลน์ได้แล้ว".
 
 ### UI strings (Thai)
@@ -69,14 +66,16 @@ There is no announcement bar.
 | app name | Nihongo Notes |
 | nav vocab | คำศัพท์ |
 | nav exam | แนวสอบ |
-| set chips | from front matter `label` (บท 3-4, บท 1-2) |
+| set chips | from front matter `label` (บท 1-2 then บท 3-4; สอบครั้งที่ 1 (บท 1-2) then สอบครั้งที่ 2 (บท 3-4)) |
+| choose a set (vocab / exam prompt) | เลือกบทที่ต้องการเรียน / เลือกชุดข้อสอบที่ต้องการดู |
+| share, copy, copied, close | แชร์เว็บไซต์ / คัดลอกลิงก์ / คัดลอกลิงก์แล้ว / ปิด |
+| contents toggle | ซ่อนสารบัญ / แสดงสารบัญ |
 | word count | `N คำ` |
 | contents | สารบัญ |
 | tip label | เคล็ดจำ |
 | irregular marker (screen reader) | อ่านไม่ปกติ |
 | exam answer label | ตอบ |
 | exam example label | ตัวอย่าง |
-| archive toggle | สอบครั้งที่ 1 (บท 1-2) |
 | jump to vocab chip | ดูตาราง |
 | loading | กำลังโหลด... |
 | load error | โหลดเนื้อหาไม่สำเร็จ / ลองอีกครั้ง |
@@ -97,8 +96,8 @@ There is no announcement bar.
 
   ·· kyōshitsu  ·  depāto  ·  ikura desuka  ·  ku-ji  ·  hap-pun ··   (romaji ticker)
 
-┌─ contents rail ─┐  ┌───────────────── content column (max 880) ─────────────────┐
-│ สารบัญ          │  │ ███ dark-feature-band (deep green, radius 22) ███████████  │
+┌─ contents rail ─┐  ┌───────────────── content column (fills the rest) ──────────┐
+│ [▯] สารบัญ          │  │ ███ dark-feature-band (deep green, radius 22) ███████████  │
 │ ▌คำศัพท์ตามหมวด │  │  PART 01                                                  │
 │   1.1 สถานที่   │  │  คำศัพท์ตามหมวด                           50 คำ           │
 │   1.2 กิจกรรม   │  │ ██████████████████████████████████████████████████████  │
@@ -126,10 +125,10 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 
 | Block | Look |
 |---|---|
-| Hero | Centered. Mono label, `hero-display` headline built from the set label, a muted line with counts from the manifest. Generous space below (80 px) per DESIGN |
-| Set switch | Two `blog-filter-chip`s. Active: coral fill, ink text. Inactive: coral outline, pale fill. Updates `?set=` and scrolls to top of the list |
+| Hero | Centered. Mono label, `hero-display` headline built from the set label, a muted line with counts from the manifest. Before a set is chosen the headline is just "คำศัพท์" and the muted line is the prompt "เลือกบทที่ต้องการเรียน". Generous space below (80 px) per DESIGN |
+| Set switch | Two `blog-filter-chip`s. Active: coral fill, ink text. Inactive: coral outline, pale fill. Chips are in `order` (บท 1-2, then บท 3-4). None is pressed at first and nothing is rendered below them until one is chosen (an unknown `?set=` counts as none). Updates `?set=` |
 | Romaji ticker | Single line of romaji from the current set (first entry of each group), `caption` size, `muted`, separated by middle dots, faded edges (mask). Decorative: `aria-hidden` |
-| Contents rail | Sticky left column 240 px. Lists `##` parts and `###` sections. A 2 px ink bar marks the section in view and slides between items. Clicking scrolls smoothly and updates `?g=` |
+| Contents rail | Sticky left column 240 px (desktop only). Lists `##` parts and `###` sections. A 2 px ink bar marks the section in view and slides between items; the list scrolls inside the rail to keep that item visible while the page scrolls. Clicking scrolls smoothly and updates `?g=`. A toggle button (panel icon, `aria-expanded`) at the top-left closes the rail: the list fades and slides out, the grid column shrinks to the 44 px toggle (520 ms, ease-out) and the content column, which has no maximum width, grows into the space. Opening reverses it, with the list rows staggering in. The choice is kept in `localStorage` |
 | Part band | `dark-feature-band`, radius 22, padding 48 (phone 28). Mono label `PART 01` (from the heading number), part title in `section-display` white, item count right. Alternates `deep-green` and `dark-navy` by position. Each vocabulary file is one list of topics (places, things, questions, expressions, time, numbers, money, sentences); the lecturer's chapters are not shown |
 | Section heading | `card-heading` with the number as a mono label before it. 56 px top spacing |
 | Group heading | `feature-heading` plus a mono label word count at the right edge |
@@ -186,8 +185,6 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
   KORE WA IKURA DESUKA?   3,625 เยน            Sanzen roppyaku nijū go en desu.
   ───────────────────────────────────────────────────────────────────────────
 
-  ▸ สอบครั้งที่ 1 (บท 1-2)                         (button-secondary, disclosure)
-    soft-stone panel: self-introduction script (5 lines), picture questions table
 ```
 
 ### 5.2 Blocks
@@ -200,7 +197,7 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 | Jump chips | `button-pill-outline` (white outline on the band) "ดูตาราง" linking to the related vocab group (`#/?set=3-4&g=2.2`). The mapping question -> group id lives in `config/site.ts` |
 | Tips | Rendered inside the band in white text on 10% white surface |
 | Worked examples | `research-table` rows: question (mono label), prompt (`feature-heading`, the time/number/phone), answer (romaji, `body-large`). Phone: three lines per row |
-| Archive | `button-secondary` disclosure with `aria-expanded`, closed by default. Panel on `soft-stone`, radius 16, padding 32: quiz 1 hero line, the 5-line self-introduction as numbered rows, the picture-question table |
+| Quiz sets | Same chip switch as the vocabulary page, labelled with the quiz names. Empty until chosen (headline "แนวสอบ", prompt "เลือกชุดข้อสอบที่ต้องการดู"); then the hero shows the quiz title and facts from the manifest and the quiz is rendered below with the blocks above. Quiz 1 has its self-introduction script and picture questions as generic blocks |
 
 ### 5.3 Phone
 
@@ -225,7 +222,8 @@ All values use Motion. Easing: `[0.22, 1, 0.36, 1]` (ease-out) unless noted. Onl
 | Word rows | Fade and rise 12 px, staggered 30 ms within a group, once only | Group enters viewport | 300 ms |
 | Number tiles | Fade and rise, staggered 25 ms (the planned one-time pulse of the irregular dot was dropped) | Grid enters viewport | 280 ms |
 | Exam pattern cards | Card fades in; then the "ตอบ" line and example reveal after 200 ms | Card enters viewport | 400 ms |
-| Archive disclosure | Height auto expand, content fade | Click | 280 ms |
+| Contents rail toggle | Column 240 -> 44 px, content widens, list fades and slides out; icon flips | Click | 520 ms ease-out |
+| Share dialog | Backdrop dims and blurs, card rises 8 px and scales from 0.96 | Click | 240 ms in, 200 ms out |
 | Toast | Slide up 16 px and fade | Show | 200 ms |
 
 Rules:
@@ -246,7 +244,7 @@ Desktop, tablet and phone are all first-class targets. The layout is designed mo
 | Page gutters | 16 px | 32 px | centered, max 1200 px (prose column 880 px) |
 | Hero headline | 40-48 px | 64 px | 96 px (vocab) / 72 px (exam) |
 | Set chips | full-width row, two equal chips | centered, auto width | centered, auto width |
-| Navigation inside a page | sticky chip row under the navbar (horizontal scroll, active chip filled, scrolls itself into view) | same sticky chip row | sticky contents rail (240 px) |
+| Navigation inside a page | sticky chip row under the navbar (horizontal scroll, active chip filled, scrolls itself into view) | same sticky chip row | sticky contents rail (240 px, can be closed) |
 | Word rows | stacked: romaji (20 px) above meaning (17 px); one column | two columns 40/60 | two columns 40/60 |
 | Pairs tables | stacked, left half then right half | side by side | side by side |
 | Number tiles | 3 per row at 360, 4 from 430 | auto-fill, min 120 px | auto-fill, min 120 px |
@@ -255,14 +253,13 @@ Desktop, tablet and phone are all first-class targets. The layout is designed mo
 | Exam pattern cards | 1 column | 2 columns | 3 columns |
 | Worked-example rows | three lines (question / prompt / answer) | one row, answer wraps | one row |
 | Dialogue console | full width, padding 20 | padding 24 | padding 24 |
-| Footer | stacked, centered | two columns | two columns |
 
 ### 7.2 Touch and input
 
 - Touch targets at least 44 px (chips, tabs, rows that act as links, disclosure buttons). Hover-only effects are never required; every hover state has a focus and press equivalent.
 - Sticky elements on phone (navbar 56 px + chip row 48 px) leave at least 60% of the viewport height for reading at 360x640. Anchored scrolls account for this with `scroll-margin-top` so a target is never hidden under the sticky bars.
 - Landscape phones (height < 500): the chip row is not sticky, the navbar is not sticky, hero is compact (headline 32 px, no extra top spacing), so the list gets the full height.
-- Safe areas: use `env(safe-area-inset-*)` padding on the navbar and footer for notched phones; `100dvh` for full-height regions.
+- Safe areas: use `env(safe-area-inset-*)` padding on the navbar for notched phones; `100dvh` for full-height regions.
 - Text stays at least 16 px for body, never below 12 px, and the user's browser text zoom up to 200% must not break layouts (no fixed heights on text containers).
 
 ### 7.3 Content safeguards at narrow widths
@@ -293,7 +290,8 @@ The sizes in `TESTING.md` section 5 (360x640, 390x844, 768x1024, 1024x768, 1440x
 
 - Word lists are real tables (`<table>` with header cells, visually hidden on phones where rows stack) or `<dl>` pairs; decided in Phase 4, both keep romaji and meaning programmatically paired.
 - Irregular marker has visually hidden text "อ่านไม่ปกติ".
-- Set chips are a `radiogroup`-like toggle group with `aria-pressed`.
+- Set chips are a `radiogroup`-like toggle group with `aria-pressed`; the group is labelled with the prompt.
+- Share dialog: `role="dialog"`, `aria-modal`, labelled by its title, focus trapped, Esc closes. The contents toggle has `aria-expanded` and a label that names the next action.
 - Contents rail and chip row are `nav` landmarks labeled "สารบัญ"; the current item has `aria-current="true"`.
 - Focus ring: 2 px `focus-blue` per DESIGN.
 - Contrast: white on `deep-green` and `dark-navy` passes AA; coral is never used for body text on white.

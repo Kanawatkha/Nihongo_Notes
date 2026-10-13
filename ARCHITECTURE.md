@@ -46,13 +46,13 @@ web/
 │  ├─ app/                  App.tsx, layouts/AppLayout.tsx, pwa/ (UpdateHost, registerServiceWorker, readingPosition)
 │  ├─ pages/                VocabPage, ExamPage, NotFoundPage
 │  ├─ features/
-│  │  ├─ vocab/             VocabView, VocabHero, SetSwitch, Contents (ContentsRail, ContentsChips), contentsItems, RomajiTicker, tickerWords, useActiveSection
-│  │  └─ exam/              ExamHero, ScoreSplit, PatternBand, PatternCard, WorkedExamples, ArchiveDisclosure
+│  │  ├─ vocab/             VocabView, VocabHero, Contents (ContentsRail, ContentsChips), contentsItems, RomajiTicker, tickerWords, useActiveSection, useRailOpen
+│  │  └─ exam/              ExamHero, ExamView, ScoreSplit, PatternBand, PracticeRows
 │  ├─ components/
-│  │  ├─ ui/                Button, ButtonLink, Chip, MonoLabel, Disclosure, Skeleton, Toast, Icon
+│  │  ├─ ui/                Button, ButtonLink, Chip, SetSwitch, MonoLabel, Skeleton, Toast, Icon
 │  │  ├─ content/           BlockRenderer, InlineContent, VocabRows, NumberGrid, PairTable, DataTable, TipCallout, Dialogue
 │  │  ├─ motion/            Reveal, Stagger (wrappers that respect reduced motion)
-│  │  └─ layout/            Navbar, Footer, Logo, PageContainer
+│  │  └─ layout/            Navbar, ShareDialog, QrCode, Logo, PageContainer
 │  ├─ content/
 │  │  ├─ types.ts           shared with scripts
 │  │  ├─ loaders.ts         lazy loaders for generated JSON
@@ -95,9 +95,9 @@ app    ->  pages, components, config
 ## 6. State
 
 - Local component state only. No global store.
-- Selected chapter set and the target group live in the hash query: `#/?set=3-4&g=2.2`. Links from the exam page to vocabulary tables use this.
-- The archive disclosure on the exam page is local state, closed by default.
-- Nothing is stored except the service worker cache and a one-time scroll position used across an automatic update reload (`sessionStorage`, see `DEPLOY.md`).
+- Selected set and the target group live in the hash query: `#/?set=3-4&g=2.2` (vocabulary) and `#/exam?set=3-4` (exam). No `set` or an unknown one means nothing is shown yet. Links from the exam page to vocabulary tables use this. `lib/setParam.ts` maps a file key (`ch3-4`, `quiz2-ch3-4`) to the value (`3-4`).
+- The share dialog is local state of the navbar.
+- Stored in the browser: the service worker cache, a one-time scroll position used across an automatic update reload (`sessionStorage`, see `DEPLOY.md`), and whether the contents rail is open (`localStorage` key `nihongo-contents-open`, optional, the page works without it).
 
 ## 7. Routing
 

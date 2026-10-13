@@ -10,8 +10,8 @@ The two study files were split by page on 13 Oct 2026 (files now in `content/`).
 |---|---|---|---|
 | `vocab` | `ch3-4.md` | `ch3-4-vocab.md`, re-grouped by topic on 13 Oct 2026 (parts `1.` words, `2.` time, `3.` numbers and money, `4.` sentences and dialogues; chapters 3 and 4 are merged) | Vocabulary, set "บท 3-4" |
 | `vocab` | `ch1-2.md` | `ch1-2-vocab.md`, sections 1 to 3 except `2.7` | Vocabulary, set "บท 1-2" |
-| `exam` | `quiz2-ch3-4.md` | `ch3-4-vocab.md`, section 0 and "ฝึกจากตัวอย่างในแนวข้อสอบ" | Exam guide, main |
-| `exam` | `quiz1-ch1-2.md` | `ch1-2-vocab.md`, section 0 (self-introduction) and `2.7` | Exam guide, archive |
+| `exam` | `quiz2-ch3-4.md` | `ch3-4-vocab.md`, section 0 and "ฝึกจากตัวอย่างในแนวข้อสอบ" | Exam guide, set "สอบครั้งที่ 2 (บท 3-4)" |
+| `exam` | `quiz1-ch1-2.md` | `ch1-2-vocab.md`, section 0 (self-introduction) and `2.7` | Exam guide, set "สอบครั้งที่ 1 (บท 1-2)" |
 
 Heading levels are demoted by one where needed so every file has exactly one `#` title (the current `ch3-4-vocab.md` has two `#` chapter headings; they become `##`).
 
@@ -22,17 +22,16 @@ Optional, at the very top, `key: value` lines between `---` fences. No nesting, 
 ```
 ---
 label: บท 3-4
-order: 1
+order: 2
 facts: พุธ 14 ต.ค. 2569 · 15 คะแนน · คนละ 3 นาที · ไม่มีสอบซ่อม
 ---
 ```
 
 | Key | Used by | Meaning |
 |---|---|---|
-| `label` | set switch, exam page | Short label shown on chips |
-| `order` | set switch | Chip order; `1` is the default set |
+| `label` | set switch, exam page | Short label shown on chips (required) |
+| `order` | set switch | Chip order, lowest first, unique within a collection (required). No set is open by default; the visitor chooses one |
 | `facts` | exam hero (exam files only) | One line of exam facts shown under the exam title |
-| `archived` | exam page | `true` puts the file in the archive disclosure |
 
 Unknown keys are build errors.
 
@@ -114,7 +113,7 @@ type ContentNode = {
 type ContentFile = {
   collection: 'vocab' | 'exam';
   key: string;           // "ch3-4"
-  meta: { label?: string; order?: number; facts?: string; archived?: boolean };
+  meta: { label?: string; order?: number; facts?: string };
   title: Inline[];
   intro: Block[];        // blocks between the # title and the first ##
   nodes: ContentNode[];
@@ -136,7 +135,7 @@ type ContentFile = {
 3. Every `vocab` romaji cell contains at least one Latin letter. Thai is allowed in romaji cells only as a placeholder (for example `chōdo + เวลา`).
 4. Macrons use precomposed characters (`ā ī ū ē ō`), not a letter plus a combining mark.
 5. Node ids are unique.
-6. Front matter keys are known; exactly one vocab file has `order: 1`.
+6. Front matter keys are known; every file has a `label` and an `order`, orders are unique within a collection, and the registry in `config/site.ts` lists the files in `order`.
 7. Parser limits (errors with line number): HTML, fenced code, links and images, indented lines, `+`/`*` list markers, `N)` markers, setext headings, trailing double space, headings deeper than `####`, table rows with the wrong number of cells.
 8. Round trip: data converted back to normalized text equals the normalized Markdown (see `TESTING.md`).
 

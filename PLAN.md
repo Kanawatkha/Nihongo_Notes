@@ -114,6 +114,18 @@ Requested by the user: the vocabulary of a set is one list grouped by topic, not
 - [x] Tests: 90 (two new: no heading splits words by chapter; every exam link targets an existing group)
 - [x] The study copies at the course root (`ch1-2-vocab.md`, `ch3-4-vocab.md`) were regenerated from the web content (exam parts included)
 
+## Change after Phase 8 - share button, empty start, collapsible contents (13 Oct 2026)
+
+Requested by the user after seeing the Digital Logic Notes site.
+
+- [x] Header: the course code is gone; a coral share button at the right end opens the same blurred share card with QR and copy field (`ShareDialog`, `QrCode`, `lib/qr.ts`, `useFocusTrap`, `useLockBodyScroll`, copied from the Digital Logic project). `Icon` gained share, copy, check, close and panel icons
+- [x] Vocabulary and exam pages start empty until a set chip is pressed (no `?set=` default). Chips are ordered by front matter `order` (บท 1-2, then บท 3-4; quiz 1, then quiz 2), so a new chapter or exam is one more Markdown file plus one registry entry. `archived` and the archive disclosure were removed (`Disclosure`, `ArchivePanel`); each quiz is now its own set. Every content file needs `label` and `order`
+- [x] Exam page: chips from the manifest, hero from the manifest title and facts, the chosen quiz loaded on demand. `prefetchForRoute` loads the manifest, and the content file only when `?set=` names one
+- [x] Contents rail: toggle button, animated close (column 240 -> 44 px, list fades out, content widens into the space) and open (rows stagger in), state remembered, active entry kept visible inside the rail while the page scrolls
+- [x] Tests: 108 (empty states, chip order, share dialog, QR structure, rail toggle, registry order)
+
+- [x] Footer removed (user request, 13 Oct 2026): `Footer`, its test, the build date define and the offline status line are gone; the offline-ready toast stays
+
 ## Working agreements
 
 - One phase at a time. Report after each checklist group, then wait.

@@ -8,8 +8,8 @@ Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 
 | Page | Route | Source Markdown |
 |---|---|---|
-| คำศัพท์ (Vocabulary) | `#/` (`?set=3-4` default, `?set=1-2`; `?g=2.2` opens a group) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
-| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz2-ch3-4.md` (current), `content/exam/quiz1-ch1-2.md` (archive) |
+| คำศัพท์ (Vocabulary) | `#/` (`?set=1-2` or `?set=3-4` chooses the set, nothing is open until then; `?g=2.2` opens a group) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
+| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` (`?set=1-2`, `?set=3-4`) |
 
 - Each vocabulary file is one list grouped by topic, not by lecturer chapter: for บท 3-4 the parts are `1. คำศัพท์ตามหมวด`, `2. เวลา`, `3. ตัวเลขและเงิน`, `4. รูปประโยคและบทสนทนา`; บท 1-2 has words, pronunciation and grammar.
 - Word lists are tables with the header `โรมาจิ | ความหมาย`. A bold romaji cell marks an irregular reading (coral dot). `>` lines are memory tips.

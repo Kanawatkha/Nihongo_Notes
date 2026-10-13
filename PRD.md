@@ -36,21 +36,24 @@ Two pages, client-side routes (`HashRouter`):
 
 | Page | Route | Source content |
 |---|---|---|
-| คำศัพท์ (Vocabulary) | `#/` with set switch `?set=3-4` (default) or `?set=1-2` | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
-| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz2-ch3-4.md` (main), `content/exam/quiz1-ch1-2.md` (archive) |
+| คำศัพท์ (Vocabulary) | `#/` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
+| แนวสอบ (Exam guide) | `#/exam` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` |
 
 Plus a not-found route. Navigation: top navbar with two links.
 
 ## 6. Features
 
 ### F1 Vocabulary page
-All words of the selected set as one list grouped by topic (places, things, questions, expressions, time, numbers, money, sentences), not split by chapter; the Markdown parts, sections and sub-groups give the order. Each word shows romaji (large) and Thai meaning. Number tables (1-10, hours, minutes, hundreds, thousands) render as tile grids. Irregular readings (bold in Markdown) get an accent marker. Memory tips (`>` lines) render as small callouts. A contents rail (desktop) or chip row (phone) jumps between groups.
+All words of the selected set as one list grouped by topic (places, things, questions, expressions, time, numbers, money, sentences), not split by chapter; the Markdown parts, sections and sub-groups give the order. Each word shows romaji (large) and Thai meaning. Number tables (1-10, hours, minutes, hundreds, thousands) render as tile grids. Irregular readings (bold in Markdown) get an accent marker. Memory tips (`>` lines) render as small callouts. A contents rail (desktop) or chip row (phone) jumps between groups and follows the page while it scrolls. On desktop the rail has a toggle that closes it with an animation; the content then widens into the freed space (the choice is remembered).
 
 ### F2 Set switch
-Large chips switch between "บท 3-4" (default, current exam) and "บท 1-2" (archive). The choice is kept in the URL.
+Large chips, in order "บท 1-2" then "บท 3-4", choose what to show. Both pages start empty (a title and the prompt to choose) until a chip is pressed, so later chapters and exams are added by one more Markdown file. The choice is kept in the URL.
 
 ### F3 Exam guide page
-Exam facts (date, score split, time per person), the five question patterns with answer templates and examples, the worked examples from the lecturer's guide, and the reference tables needed to answer (time, phone, price). Quiz 1 (chapters 1-2) sits below as a collapsible archive section with the self-introduction script.
+Exam facts (date, score split, time per person), the five question patterns with answer templates and examples, the worked examples from the lecturer's guide, and the reference tables needed to answer (time, phone, price). Each quiz (1: chapters 1-2, 2: chapters 3-4) is its own set chip with its own facts, patterns and examples.
+
+### F2b Share
+A coral button at the right end of the header opens a card with a QR code and the site link (copy button), over a blurred page. Same behavior as the Digital Logic Notes site.
 
 ### F4 Motion
 Restrained, meaningful animation: hero text reveal, rows fading up as they enter, sliding active indicator on chips and the contents rail, a slow romaji ticker strip, pattern cards that reveal question then answer. All of it disabled under `prefers-reduced-motion`. Details in `UI-SPEC.md` section 6.

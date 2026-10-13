@@ -36,7 +36,7 @@ Playwright and Lighthouse CI are not planned (keep dependencies small). Add them
 5. **Classification.** Fixture tests for each table kind (`vocab`, `pairs` with uneven halves, `readings`, `grid`, generic), dialogue detection, tips, and a skipped heading level error.
 6. **Tree.** Ids unique; numbered headings keep their numbers; source order kept.
 7. **Counts snapshot.** `report.txt` word and reading counts per file and section are a committed snapshot. Any change must be reviewed, not silently accepted.
-8. **Front matter.** Unknown keys fail; exactly one default vocab set.
+8. **Front matter.** Unknown keys fail; every file has a label and a unique order; the registry order equals the front matter order.
 
 Constructs are tested with small inline Markdown sources in `tests/parse.test.ts`; `tests/content.test.ts` runs the real files.
 
@@ -44,9 +44,11 @@ Constructs are tested with small inline Markdown sources in `tests/parse.test.ts
 
 - `BlockRenderer`: one test per block type; an unknown type is a TypeScript error.
 - Word rows: romaji and meaning are paired for assistive technology; irregular entries expose "อ่านไม่ปกติ".
-- `SetSwitch`: reads and writes `?set=`, default is the `order: 1` file, `aria-pressed` correct.
+- `SetSwitch` and the pages: both pages start empty (no content, nothing pressed), chips in `order`, `?set=` opens a set, an unknown value stays empty, `aria-pressed` correct.
+- `ShareDialog` and navbar: the share button opens the dialog, copy, close by cross, Esc and outside press, focus returns to the button; `qr.ts` structure (finder patterns, format bits).
+- Contents rail toggle: `aria-expanded`, `data-rail`, remembered in `localStorage`.
 - `ContentsRail` / chip row: lists every `##` and `###`, click scrolls to the target and sets `?g=`.
-- Exam page: renders every pattern card and worked example from the fixture; archive disclosure toggles `aria-expanded`.
+- Exam page: renders every pattern card and worked example from the fixture; each quiz opens from its own chip.
 - Motion wrappers: with reduced motion mocked, components render final state with no transform.
 - `UpdateHost`: shows the updated toast after an automatic reload, offline-ready toast once.
 - Navbar: `aria-current` on the active link; both links stay visible and reachable at 360 px.
@@ -60,7 +62,7 @@ Sizes: 360x640, 390x844, 768x1024, 1024x768, 1440x900, landscape 844x390.
 2. `document.scrollingElement.scrollWidth <= innerWidth` on every page and set, also at 200% browser text zoom.
    Per-device layout from `UI-SPEC.md` section 7.1 matches (rail vs chip row, stacked vs two-column rows, card columns), anchored scrolls are not hidden under sticky bars, and tap targets are at least 44 px.
 3. Thai tone marks are not clipped in headings; macron letters render in Space Grotesk / Inter (inspect computed font).
-4. Keyboard walk: navbar, set chips, contents, exam cards, archive disclosure.
+4. Keyboard walk: navbar, set chips, contents, exam cards, share button and dialog, contents toggle.
 5. Reduced motion emulation: no transforms, ticker static.
 6. axe: zero serious or critical violations on each page.
 
