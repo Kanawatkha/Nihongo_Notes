@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`real content > keeps word and reading counts stable (review changes, do not accept blindly) 1`] = `
+{
+  "exam/quiz1-ch1-2": {
+    "readings": 0,
+    "words": 0,
+  },
+  "exam/quiz2-ch3-4": {
+    "readings": 0,
+    "words": 0,
+  },
+  "vocab/ch1-2": {
+    "readings": 10,
+    "words": 111,
+  },
+  "vocab/ch3-4": {
+    "readings": 106,
+    "words": 64,
+  },
+}
+`;
