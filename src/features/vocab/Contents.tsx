@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/Icon';
 import { UI_TEXT } from '@/config/site';
 import { cn } from '@/lib/cn';
 import type { ContentsItem } from './contentsItems';
+import { useGlideScroll } from './useGlideScroll';
 
 type ContentsProps = {
   items: ContentsItem[];
@@ -27,13 +28,15 @@ const rowVariants: Variants = {
 };
 
 /**
- * Sticky left rail (desktop): chapters and sections, with a bar that slides to the section in view.
+ * Sticky left rail (desktop): chapters and sections. When the section in view changes, the old
+ * entry's bar fades out, the list glides so the new entry is in view, then the new bar fades in.
  * The toggle stays put at the left edge. The grid column around it shrinks to the toggle's width
  * when closed (see `.vocab-layout`) while the list keeps a fixed width, so its text never rewraps.
  */
 export function ContentsRail({ items, activeId, onSelect, open, onToggle }: ContentsRailProps) {
   const reduceMotion = useReducedMotion();
   const navRef = useRef<HTMLElement>(null);
+  const { glideTo, cancel } = useGlideScroll(navRef, 'y');
 
   // Keep the highlighted entry visible inside the rail while the page scrolls
   useEffect(() => {
@@ -49,11 +52,8 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
     if (top >= nav.scrollTop + margin && bottom <= nav.scrollTop + nav.clientHeight - margin) {
       return;
     }
-    nav.scrollTo({
-      top: top - (nav.clientHeight - entry.offsetHeight) / 2,
-      behavior: reduceMotion ? 'instant' : 'smooth',
-    });
-  }, [activeId, open, reduceMotion]);
+    glideTo(top - (nav.clientHeight - entry.offsetHeight) / 2);
+  }, [activeId, open, glideTo]);
 
   const label = open ? UI_TEXT.contentsHide : UI_TEXT.contentsShow;
 
@@ -102,6 +102,8 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -16 }}
             transition={{ duration: 0.22 }}
+            onPointerDown={cancel}
+            onWheel={cancel}
             className="relative mt-2 min-h-0 w-60 flex-1 overflow-y-auto pr-2"
           >
             <motion.ul
@@ -120,19 +122,20 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
                       onClick={() => onSelect(item.id)}
                       aria-current={active ? 'true' : undefined}
                       className={cn(
-                        'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors duration-300',
+                        'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors motion-reduce:transition-none',
                         item.level === 2 ? 'mt-4 pl-3 font-medium first:mt-0' : 'pl-6',
-                        active ? 'text-primary' : 'text-body-muted',
+                        active
+                          ? 'text-primary delay-200 duration-300'
+                          : 'text-body-muted duration-200',
                       )}
                     >
-                      {active && (
-                        <motion.span
-                          layoutId="rail-bar"
-                          aria-hidden="true"
-                          className="absolute top-0 bottom-0 left-0 w-0.5 bg-primary"
-                          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                        />
-                      )}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'absolute top-0 bottom-0 left-0 w-0.5 bg-primary transition-opacity motion-reduce:transition-none',
+                          active ? 'opacity-100 delay-200 duration-300' : 'opacity-0 duration-200',
+                        )}
+                      />
                       {item.level === 3 && item.number && (
                         <span className="type-mono-label mr-1.5 normal-case">{item.number}</span>
                       )}
@@ -150,12 +153,12 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
 }
 
 /**
- * Sticky chip row (phone and tablet). The filled pill slides from chip to chip when the section in
- * view changes, and the row glides so the active chip stays centered.
+ * Sticky chip row (phone and tablet). When the section in view changes, the old chip's fill fades
+ * out, the row glides so the new chip is centered, then the new chip's fill fades in.
  */
 export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
-  const reduceMotion = useReducedMotion();
   const listRef = useRef<HTMLUListElement>(null);
+  const { glideTo, cancel } = useGlideScroll(listRef, 'x');
 
   useEffect(() => {
     const list = listRef.current;
@@ -164,21 +167,19 @@ export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
       (element) => element.dataset.chipId === activeId,
     );
     if (!chip) return;
-    list.scrollTo({
-      left: chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2,
-      behavior: reduceMotion ? 'instant' : 'smooth',
-    });
-  }, [activeId, reduceMotion]);
+    glideTo(chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2);
+  }, [activeId, glideTo]);
 
   return (
     <nav
       aria-label="สารบัญ"
       className="sticky top-14 z-30 -mx-4 border-b border-hairline bg-canvas md:top-16 md:-mx-8 lg:hidden [@media(max-height:500px)]:static"
     >
-      <motion.ul
+      <ul
         ref={listRef}
-        layoutScroll
-        className="flex gap-2 overflow-x-auto px-4 py-2 md:px-8"
+        onPointerDown={cancel}
+        onWheel={cancel}
+        className="relative flex gap-2 overflow-x-auto px-4 py-2 md:px-8"
       >
         {items.map((item) => {
           const active = item.id === activeId;
@@ -190,25 +191,26 @@ export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
                 onClick={() => onSelect(item.id)}
                 aria-current={active ? 'true' : undefined}
                 className={cn(
-                  'type-caption relative min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors duration-300',
+                  'type-caption relative min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors motion-reduce:transition-none',
                   item.level === 2 ? 'font-medium' : '',
-                  active ? 'border-primary text-on-primary' : 'border-hairline bg-canvas text-ink',
+                  active
+                    ? 'border-primary text-on-primary delay-200 duration-300'
+                    : 'border-hairline text-ink duration-200',
                 )}
               >
-                {active && (
-                  <motion.span
-                    layoutId="chip-pill"
-                    aria-hidden="true"
-                    className="absolute -inset-px rounded-xl bg-primary"
-                    transition={{ type: 'spring', stiffness: 380, damping: 36 }}
-                  />
-                )}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'absolute -inset-px rounded-xl bg-primary transition-opacity motion-reduce:transition-none',
+                    active ? 'opacity-100 delay-200 duration-300' : 'opacity-0 duration-200',
+                  )}
+                />
                 <span className="relative">{item.chip}</span>
               </button>
             </li>
           );
         })}
-      </motion.ul>
+      </ul>
     </nav>
   );
 }

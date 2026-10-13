@@ -217,7 +217,7 @@ All values use Motion. Easing: `[0.22, 1, 0.36, 1]` (ease-out) unless noted. Onl
 | Set chips | Active coral fill slides between chips (`layoutId`) | Click | 300 ms spring |
 | Set change | Old list fades out 120 ms, new list fades/rises in 16 px | Click | 240 ms |
 | Contents rail | Active bar slides to the section in view (`layoutId`) | Scroll spy | 250 ms spring |
-| Chip row (phone, tablet) | A filled pill slides (`layoutId`, spring) to the chip of the section in view, the row glides (smooth scroll) to keep it centered, text color fades | Scroll spy | 300 ms |
+| Chip row (phone, tablet) and contents rail | Three steps when the section in view changes: the old chip (rail: bar) fades out (200 ms), the row glides so the new chip is centered (eased toward a moving target, about 350 ms, so fast section changes keep gliding instead of restarting), then the new fill fades in (300 ms, 200 ms delay) and its text color follows. No sliding indicator: a shared element inside a scrolling row jitters | Scroll spy | 200 + 300 ms |
 | Navbar underline | Slides between links | Route change | 250 ms spring |
 | Part band | Scales from 0.98 and fades in; mono label counts up the word count | Enters viewport | 500 ms |
 | Word rows | Fade and rise 12 px, staggered 30 ms within a group, once only | Group enters viewport | 300 ms |
