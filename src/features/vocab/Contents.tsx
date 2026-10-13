@@ -120,7 +120,7 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
                       onClick={() => onSelect(item.id)}
                       aria-current={active ? 'true' : undefined}
                       className={cn(
-                        'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors',
+                        'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors duration-300',
                         item.level === 2 ? 'mt-4 pl-3 font-medium first:mt-0' : 'pl-6',
                         active ? 'text-primary' : 'text-body-muted',
                       )}
@@ -149,8 +149,12 @@ export function ContentsRail({ items, activeId, onSelect, open, onToggle }: Cont
   );
 }
 
-/** Sticky chip row (phone and tablet). The active chip scrolls itself into view. */
+/**
+ * Sticky chip row (phone and tablet). The filled pill slides from chip to chip when the section in
+ * view changes, and the row glides so the active chip stays centered.
+ */
 export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
+  const reduceMotion = useReducedMotion();
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -160,15 +164,22 @@ export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
       (element) => element.dataset.chipId === activeId,
     );
     if (!chip) return;
-    list.scrollTo({ left: chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2 });
-  }, [activeId]);
+    list.scrollTo({
+      left: chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2,
+      behavior: reduceMotion ? 'instant' : 'smooth',
+    });
+  }, [activeId, reduceMotion]);
 
   return (
     <nav
       aria-label="สารบัญ"
       className="sticky top-14 z-30 -mx-4 border-b border-hairline bg-canvas md:top-16 md:-mx-8 lg:hidden [@media(max-height:500px)]:static"
     >
-      <ul ref={listRef} className="flex gap-2 overflow-x-auto px-4 py-2 md:px-8">
+      <motion.ul
+        ref={listRef}
+        layoutScroll
+        className="flex gap-2 overflow-x-auto px-4 py-2 md:px-8"
+      >
         {items.map((item) => {
           const active = item.id === activeId;
           return (
@@ -179,19 +190,25 @@ export function ContentsChips({ items, activeId, onSelect }: ContentsProps) {
                 onClick={() => onSelect(item.id)}
                 aria-current={active ? 'true' : undefined}
                 className={cn(
-                  'type-caption min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors',
+                  'type-caption relative min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors duration-300',
                   item.level === 2 ? 'font-medium' : '',
-                  active
-                    ? 'border-primary bg-primary text-on-primary'
-                    : 'border-hairline bg-canvas text-ink',
+                  active ? 'border-primary text-on-primary' : 'border-hairline bg-canvas text-ink',
                 )}
               >
-                {item.chip}
+                {active && (
+                  <motion.span
+                    layoutId="chip-pill"
+                    aria-hidden="true"
+                    className="absolute -inset-px rounded-xl bg-primary"
+                    transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+                  />
+                )}
+                <span className="relative">{item.chip}</span>
               </button>
             </li>
           );
         })}
-      </ul>
+      </motion.ul>
     </nav>
   );
 }
