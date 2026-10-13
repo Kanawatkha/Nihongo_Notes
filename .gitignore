@@ -1,0 +1,22 @@
+# dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# generated content data (rebuilt by `npm run content`)
+src/content/generated/
+
+# test and tool output
+coverage/
+.vite/
+
+# local-only agent files
+.claude/
+
+# logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# agent instructions stay local (same choice as the Digital Logic project)
+CLAUDE.md
