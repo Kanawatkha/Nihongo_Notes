@@ -126,6 +126,16 @@ Requested by the user after seeing the Digital Logic Notes site.
 
 - [x] Footer removed (user request, 13 Oct 2026): `Footer`, its test, the build date define and the offline status line are gone; the offline-ready toast stays
 
+## Change after Phase 8 - flash-card quiz page (13 Oct 2026)
+
+Requested by the user: a third page "แบบทดสอบ" with one random exam-style card at a time, a dice to deal, and the answer on the back.
+
+- [x] `src/lib/readings.ts`: numbers 1-99,999, clock times (gozen/gogo, han, -fun/-pun), prices, phone numbers, with the irregular readings marked; spelled like the exam answers
+- [x] `src/config/quiz.ts`: kinds per set, section numbers and question sentences copied from the slides
+- [x] `features/quiz`: decks from the vocabulary file, card builders, a dealer (shuffled bag per kind, no repeat in a row, "ยังไม่ได้" words come back), `QuizCardView` (3D flip, inert hidden face), `QuizView` (kind chips, tally, dice, self-check)
+- [x] `pages/QuizPage.tsx`, route `/quiz`, third navbar link (phone: links never wrap), prefetch of the set's vocabulary file
+- [x] Tests: 139 (readings against the slide tables, every worked exam answer reproduced, deck and dealer rules, page behavior). axe: 0 violations on both faces; checked at 1280, 768 and 375 px
+
 ## Working agreements
 
 - One phase at a time. Report after each checklist group, then wait.

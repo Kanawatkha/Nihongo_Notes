@@ -39,7 +39,8 @@ export function prefetchForRoute(hash: string): void {
     if (key) quiet(loadContent('exam', key));
     return;
   }
-  if (route === '/' || route === '') {
+  // The quiz page uses the vocabulary file of the chosen set
+  if (route === '/' || route === '' || route === '/quiz') {
     quiet(loadManifest());
     const key = VOCAB_FILES.find((file) => setParamOf(file) === requested);
     if (key) quiet(loadContent('vocab', key));

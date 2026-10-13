@@ -47,7 +47,8 @@ web/
 │  ├─ pages/                VocabPage, ExamPage, NotFoundPage
 │  ├─ features/
 │  │  ├─ vocab/             VocabView, VocabHero, Contents (ContentsRail, ContentsChips), contentsItems, RomajiTicker, tickerWords, useActiveSection, useRailOpen
-│  │  └─ exam/              ExamHero, ExamView, ScoreSplit, PatternBand, PracticeRows
+│  │  ├─ exam/              ExamHero, ExamView, ScoreSplit, PatternBand, PracticeRows
+│  │  └─ quiz/              QuizView, QuizCardView, quizCards (decks, card builders, dealer)
 │  ├─ components/
 │  │  ├─ ui/                Button, ButtonLink, Chip, SetSwitch, MonoLabel, Skeleton, Toast, Icon
 │  │  ├─ content/           BlockRenderer, InlineContent, VocabRows, NumberGrid, PairTable, DataTable, TipCallout, Dialogue
@@ -58,7 +59,7 @@ web/
 │  │  ├─ loaders.ts         lazy loaders for generated JSON
 │  │  └─ generated/         BUILD OUTPUT, git-ignored
 │  ├─ hooks/                usePageTitle (more hooks only when a feature needs them; reduced motion comes from motion/react)
-│  ├─ lib/                  cn, ids, query (set and group params), text helpers
+│  ├─ lib/                  cn, setParam, text helpers, readings (numbers, clock times, prices, phone numbers in romaji), qr
 │  ├─ styles/               index.css (@theme tokens), fonts.css, content.css
 │  └─ config/               site.ts (name, base path, nav items, content registry)
 └─ tests/                   parse.test.ts, content.test.ts, __snapshots__/
@@ -102,7 +103,7 @@ app    ->  pages, components, config
 ## 7. Routing
 
 - `HashRouter` (GitHub Pages cannot rewrite deep links).
-- Routes: `/` (vocabulary), `/exam`, `*`.
+- Routes: `/` (vocabulary), `/exam`, `/quiz` (flash cards, `?set=` and `?type=`), `*`.
 - Pages are code-split with `React.lazy`.
 
 ## 8. Styling and tokens
@@ -140,5 +141,5 @@ app    ->  pages, components, config
 |---|---|
 | Chapters 5-6 | Add `content/vocab/ch5-6.md` and `content/exam/quiz3-ch5-6.md`, register them in `config/site.ts`. The set switch gains a chip automatically |
 | A new Markdown construct | Extend `parse.ts`/`classify.ts` and `types.ts`, add a block component and tests, document it in `CONTENT-SCHEMA.md` |
-| Self-test modes (later) | New feature folder `features/drill/`, reads the same vocab data |
+| Quiz for chapters 5-6 | Add an entry to `QUIZ_SETS` in `config/quiz.ts` (kinds, section numbers, question sentences copied from the slides); `tests/quiz.test.ts` checks that every question appears in the slides |
 | A design token | Not allowed. `DESIGN-cohere.md` is fixed |

@@ -4,7 +4,7 @@ Instructions for any AI coding agent working in this repository. Humans can read
 
 ## Overview
 
-Nihongo Notes is a static, frontend-only site with two pages: vocabulary (romaji + Thai meaning, grouped for memorizing) and the oral exam guide for JN60101 Japanese for Communication 1. Content lives in Markdown. A Node build script turns it into typed data. A React app renders the data and ships as a PWA on GitHub Pages.
+Nihongo Notes is a static, frontend-only site with three pages: vocabulary (romaji + Thai meaning, grouped for memorizing), the oral exam guide, and a flash-card quiz built from the same data, for JN60101 Japanese for Communication 1. Content lives in Markdown. A Node build script turns it into typed data. A React app renders the data and ships as a PWA on GitHub Pages.
 
 ## Tech stack (pin exact versions in `package.json` at scaffold time)
 

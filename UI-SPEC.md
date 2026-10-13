@@ -54,8 +54,8 @@ Pages, layout, components, motion and responsive behavior. Visual tokens (colors
 
 There is no announcement bar and no footer: the page simply ends after its content (bottom spacing 80 px).
 
-- **Navbar**: sticky, canvas background, hairline bottom border. Desktop and tablet use three zones per DESIGN: mark + wordmark left, the two links "คำศัพท์" and "แนวสอบ" centered, a coral share button (44 px square, radius 8, share icon, `aria-label` "แชร์เว็บไซต์") right. The active link has a 2 px ink underline that slides between links (Motion `layoutId`).
-- **Phone (< 768)**: no hamburger. With only two destinations the links stay visible: mark (no wordmark) left, the two links right as 44 px high text tabs with the same sliding underline; the share button stays at the right end. Navbar height 56 px. The course code is not shown in the navbar (it stays in the vocabulary page hero).
+- **Navbar**: sticky, canvas background, hairline bottom border. Desktop and tablet use three zones per DESIGN: mark + wordmark left, the three links "คำศัพท์", "แนวสอบ" and "แบบทดสอบ" centered, a coral share button (44 px square, radius 8, share icon, `aria-label` "แชร์เว็บไซต์") right. The active link has a 2 px ink underline that slides between links (Motion `layoutId`).
+- **Phone (< 768)**: no hamburger. With only three destinations the links stay visible: mark (no wordmark) left, the three links (8 px side padding, never wrapped) as 44 px high text tabs with the same sliding underline; the share button stays at the right end. Navbar height 56 px. The course code is not shown in the navbar (it stays in the vocabulary page hero).
 - **Share dialog** (same as Digital Logic Notes): a press on the share button opens a centered white card (radius 16, max width 420) over a dimmed, blurred page (backdrop blur 6 px). The card has the title "แชร์เว็บไซต์", the hint "สแกน QR หรือคัดลอกลิงก์", a QR code of the site address, and the address in a read-only field with a coral copy button inside it (the icon turns into a check and a polite live region says "คัดลอกลิงก์แล้ว"). A cross, Esc or a press outside closes it. Focus is trapped while open and returns to the share button; the page scroll is locked. The QR encoder is our own (`lib/qr.ts`, byte mode, level M), no dependency.
 - **Toast host**: bottom-left dark toast (`agent-console-card` colors), for "อัปเดตเป็นเวอร์ชันล่าสุดแล้ว" and "ใช้งานออฟไลน์ได้แล้ว".
 
@@ -205,6 +205,33 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 - Pattern band full bleed, cards one per row, padding 28.
 - Worked examples stack question / prompt / answer.
 
+## 5b. Page 3: Flash-card quiz (`#/quiz`)
+
+```
+                 FLASH CARDS · บท 3-4                     (mono label)
+                 แบบทดสอบ บท 3-4                           (product-display, compact hero)
+      สุ่มโจทย์แบบเดียวกับสอบพูด ตอบออกเสียงเอง แล้วเปิดดูเฉลย
+                 ( บท 1-2 )  ( บท 3-4 )                    (set chips, empty page until chosen)
+  (สุ่มทุกแบบ) (คำศัพท์) (สถานที่) (บอกเวลา) (เบอร์โทร) (ราคา) (เวลาเริ่ม-เลิก)   (kind chips)
+                 ตอบได้ 3 · ยังไม่ได้ 1
+  ┌──────────── deep-green card, radius 22 ────────────┐
+  │ บอกเวลา                                   ข้อที่ 4 │
+  │ Ima nan ji desuka?                (feature-heading) │
+  │                 16.30 น.          (quiz-number)    │
+  │              แตะการ์ดเพื่อดูเฉลย                    │
+  └─────────────────────────────────────────────────────┘
+        [ดูเฉลย]   [🎲 สุ่มข้อใหม่ (coral pill)]
+        ตอบได้ไหม  [ยังไม่ได้]  [ตอบได้]          (visible after turning)
+```
+
+| Block | Look |
+|---|---|
+| Card front | `deep-green` like the exam pattern band, white text, padding 24/32/40. Kind label and card number as mono labels, the examiner's question in romaji (or "พูดเป็นภาษาญี่ปุ่น" for words), the prompt large in the middle: Thai words in `quiz-thai` (32/44/48 px), times and prices in `quiz-number` (40-72 px, Space Grotesk, tabular), phone numbers and time ranges in `quiz-number-long` (30-56 px) and never broken at a hyphen. A remark of the meaning shows small under it |
+| Card back | White card with hairline border and soft shadow. "เฉลย · kind" and the prompt as mono labels, the question small, the answer sentence in `quiz-answer` (22/28/32 px, medium), other spellings ("หรือ ..."), then the spoken chunks as small tiles (number or Thai label above, romaji below); irregular readings get a coral border and dot. A pale-green "เคล็ดจำ" line repeats the exam guide reminder for time, phone, price and start-end cards |
+| Card size | Both faces share one grid cell, so the card is as tall as the taller face; min height 340/380/420 px; max width 720 px, centered |
+| Controls | Outline pill "ดูเฉลย" / "ดูโจทย์" (`aria-pressed`) and the coral pill "สุ่มข้อใหม่" with a dice icon. The self-check row (outline "ยังไม่ได้", primary "ตอบได้") keeps its space and fades in after the card turns, so nothing jumps |
+| Kind chips | Small pill chips like the contents chip row, wrapping and centered; "สุ่มทุกแบบ" deals about 40% words and 60% question patterns, like the exam |
+
 ## 6. Motion
 
 All values use Motion. Easing: `[0.22, 1, 0.36, 1]` (ease-out) unless noted. Only `opacity` and `transform`.
@@ -225,6 +252,8 @@ All values use Motion. Easing: `[0.22, 1, 0.36, 1]` (ease-out) unless noted. Onl
 | Exam pattern cards | Card fades in; then the "ตอบ" line and example reveal after 200 ms | Card enters viewport | 400 ms |
 | Contents rail toggle | Column 240 -> 44 px, content widens, list fades and slides out; icon flips | Click | 520 ms ease-out |
 | Share dialog | Backdrop dims and blurs, card rises 8 px and scales from 0.96 | Click | 240 ms in, 200 ms out |
+| Quiz card turn | 3D flip (rotateY 180, perspective 1600 px); the hidden face is `inert` | Card press or "ดูเฉลย" | 550 ms ease-out |
+| Quiz new card | Old card slides left and fades, new one slides in from the right with a slight tilt; the dice icon spins once | Dice, self-check, kind chip | 220 ms each, spring for the dice |
 | Toast | Slide up 16 px and fade | Show | 200 ms |
 
 Rules:

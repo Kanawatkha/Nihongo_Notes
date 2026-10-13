@@ -27,7 +27,7 @@ export function Navbar() {
       <div className="mx-auto flex h-14 w-full max-w-[1200px] items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] md:grid md:h-16 md:grid-cols-[1fr_auto_1fr] md:px-8">
         <Logo markOnlyBelowMd />
 
-        <nav aria-label="หน้าหลัก" className="flex items-center gap-1">
+        <nav aria-label="หน้าหลัก" className="flex items-center sm:gap-1">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -35,7 +35,7 @@ export function Navbar() {
               end
               className={({ isActive }) =>
                 cn(
-                  'type-body relative inline-flex min-h-11 items-center px-3 transition-colors',
+                  'type-body relative inline-flex min-h-11 items-center px-2 whitespace-nowrap transition-colors sm:px-3',
                   isActive ? 'text-primary' : 'text-body-muted',
                 )
               }
@@ -46,7 +46,7 @@ export function Navbar() {
                   {isActive && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute right-3 bottom-1 left-3 h-0.5 bg-primary"
+                      className="absolute right-2 bottom-1 left-2 h-0.5 bg-primary sm:right-3 sm:left-3"
                       transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                     />
                   )}

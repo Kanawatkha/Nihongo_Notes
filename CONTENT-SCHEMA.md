@@ -161,3 +161,4 @@ Git-ignored. Regenerate with `npm run content`. The word counts in the report ar
 - Memory tips start with `>`.
 - Never add kana, kanji or images.
 - Never change a reading or meaning without the user's confirmation.
+- The quiz (`src/config/quiz.ts`) finds its words by section number (`1.1` places, `1.5` things...). Renumbering a section means updating `QUIZ_SETS`; `tests/quiz.test.ts` fails if a kind loses its words or a question sentence no longer appears in the slides.

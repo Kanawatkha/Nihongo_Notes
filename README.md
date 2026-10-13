@@ -1,6 +1,6 @@
 # Nihongo Notes
 
-Vocabulary and oral-exam notes for course JN60101 Japanese for Communication 1 (chapters 1-4). A static, frontend-only site with two pages: a vocabulary page (romaji exactly as in the lecturer's slides, with Thai meanings, grouped for memorizing) and an exam guide page. It works offline and updates itself.
+Vocabulary and oral-exam notes for course JN60101 Japanese for Communication 1 (chapters 1-4). A static, frontend-only site with three pages: a vocabulary page (romaji exactly as in the lecturer's slides, with Thai meanings, grouped for memorizing), an exam guide page, and a flash-card quiz in the shape of the oral exam. It works offline and updates itself.
 
 Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 
@@ -10,9 +10,11 @@ Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 |---|---|---|
 | คำศัพท์ (Vocabulary) | `#/` (`?set=1-2` or `?set=3-4` chooses the set, nothing is open until then; `?g=2.2` opens a group) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
 | แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` (`?set=1-2`, `?set=3-4`) |
+| แบบทดสอบ (Flash-card quiz) | `#/quiz` (`?set=1-2` or `?set=3-4`, nothing is open until then; `?type=time` keeps one question kind) | the vocabulary file of the set, plus `src/config/quiz.ts` |
 
 - Each vocabulary file is one list grouped by topic, not by lecturer chapter: for บท 3-4 the parts are `1. คำศัพท์ตามหมวด`, `2. เวลา`, `3. ตัวเลขและเงิน`, `4. รูปประโยคและบทสนทนา`; บท 1-2 has words, pronunciation and grammar.
 - Word lists are tables with the header `โรมาจิ | ความหมาย`. A bold romaji cell marks an irregular reading (coral dot). `>` lines are memory tips.
+- The quiz deals one card at a time: a Thai word to say in Japanese, or an exam question with a place, a time, a phone number, a price (up to 99,999) or a start-end time to answer aloud. The card turns over to show the answer, split into spoken chunks with the irregular readings marked. Words come from the vocabulary file; numbers are generated with the reading rules in `src/lib/readings.ts`, which a test checks against every reading table in the slides and against every worked answer in the exam guides.
 - The exam guide turns the question-pattern table into cards that link to the matching vocabulary group (mapping: `PATTERN_LINKS` in `src/config/site.ts`).
 - Offline: after the first visit every page works without a network. A new deployment is installed in the background; an open tab reloads itself, goes back to the same reading position and shows a short toast. No button to press.
 

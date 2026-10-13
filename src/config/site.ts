@@ -12,6 +12,7 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'คำศัพท์' },
   { to: '/exam', label: 'แนวสอบ' },
+  { to: '/quiz', label: 'แบบทดสอบ' },
 ];
 
 /**
@@ -50,6 +51,22 @@ export const UI_TEXT = {
   contentsShow: 'แสดงสารบัญ',
   chooseVocab: 'เลือกบทที่ต้องการเรียน',
   chooseExam: 'เลือกชุดข้อสอบที่ต้องการดู',
+  chooseQuiz: 'เลือกบทที่ต้องการฝึก',
+  quizIntro: 'สุ่มโจทย์แบบเดียวกับสอบพูด ตอบออกเสียงเอง แล้วเปิดดูเฉลย',
+  quizKinds: 'เลือกแบบโจทย์',
+  allKinds: 'สุ่มทุกแบบ',
+  reveal: 'ดูเฉลย',
+  hideAnswer: 'ดูโจทย์',
+  roll: 'สุ่มข้อใหม่',
+  known: 'ตอบได้',
+  again: 'ยังไม่ได้',
+  selfCheck: 'ตอบได้ไหม',
+  sayInJapanese: 'พูดเป็นภาษาญี่ปุ่น',
+  tapToFlip: 'แตะการ์ดเพื่อดูเฉลย',
+  cardNumber: 'ข้อที่',
+  orAlso: 'หรือ',
+  tip: 'เคล็ดจำ',
+  solution: 'เฉลย',
   offlineReady: 'ใช้งานออฟไลน์ได้แล้ว',
   updated: 'อัปเดตเป็นเวอร์ชันล่าสุดแล้ว',
   tableLink: 'ดูตาราง',

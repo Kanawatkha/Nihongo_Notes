@@ -265,6 +265,78 @@
     line-height: 1.35;
     letter-spacing: 0;
   }
+
+  /*
+   * Flash card (quiz page): the prompt the examiner shows and the answer to say. Sizes step up
+   * with the card width; Thai prompts keep a taller line for tone marks.
+   */
+  .type-quiz-number {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  /* Phone numbers and time ranges: long, so a step smaller */
+  .type-quiz-number-long {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .type-quiz-thai {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.35;
+  }
+  .type-quiz-answer {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 425px) {
+    .type-quiz-number {
+      font-size: 48px;
+    }
+    .type-quiz-number-long {
+      font-size: 34px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .type-quiz-number {
+      font-size: 64px;
+    }
+    .type-quiz-number-long {
+      font-size: 48px;
+    }
+    .type-quiz-thai {
+      font-size: 44px;
+    }
+    .type-quiz-answer {
+      font-size: 28px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .type-quiz-number {
+      font-size: 72px;
+    }
+    .type-quiz-number-long {
+      font-size: 56px;
+    }
+    .type-quiz-thai {
+      font-size: 48px;
+    }
+    .type-quiz-answer {
+      font-size: 32px;
+    }
+  }
 }
 
 /* Romaji ticker under the vocabulary hero: a slow continuous scroll, static for reduced motion */
