@@ -1,4 +1,5 @@
 import { EXAM_FILES, VOCAB_FILES } from '@/config/site';
+import { setParamOf } from '@/lib/setParam';
 import type { ContentCollection, ContentFile, Manifest } from './types';
 
 /** Lazy loaders for the generated JSON. Each content file is its own chunk. */
@@ -23,21 +24,24 @@ export async function loadManifest(): Promise<Manifest> {
 
 /**
  * Starts loading what the first screen will need, before React has rendered. The page chunk, the
- * manifest and the content file are then fetched in parallel instead of one after another, which
- * shortens the time to the first words. Failures are ignored here; the page shows its own error.
+ * manifest and the chosen content file (from `?set=`) are then fetched in parallel instead of one
+ * after another. Without a chosen set only the manifest is needed. Failures are ignored here; the
+ * page shows its own error.
  */
 export function prefetchForRoute(hash: string): void {
   const [route = '', query = ''] = hash.replace(/^#/, '').split('?');
   const quiet = (promise: Promise<unknown>) => promise.catch(() => {});
+  const requested = new URLSearchParams(query).get('set');
 
   if (route === '/exam') {
-    for (const key of EXAM_FILES) quiet(loadContent('exam', key));
+    quiet(loadManifest());
+    const key = EXAM_FILES.find((file) => setParamOf(file) === requested);
+    if (key) quiet(loadContent('exam', key));
     return;
   }
   if (route === '/' || route === '') {
-    const requested = new URLSearchParams(query).get('set');
-    const key = VOCAB_FILES.find((file) => file === `ch${requested}`) ?? VOCAB_FILES[0];
     quiet(loadManifest());
-    quiet(loadContent('vocab', key));
+    const key = VOCAB_FILES.find((file) => setParamOf(file) === requested);
+    if (key) quiet(loadContent('vocab', key));
   }
 }

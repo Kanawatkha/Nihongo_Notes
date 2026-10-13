@@ -14,8 +14,6 @@ export const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
 const TOAST_MS = 3500;
 
 type UpdateHostProps = {
-  /** Called with true once the whole site is cached and works offline. */
-  onOfflineReadyChange?: (ready: boolean) => void;
   /** Injection points for tests. */
   register?: RegisterServiceWorker;
   reload?: () => void;
@@ -30,7 +28,6 @@ const reloadPage = () => window.location.reload();
  * same reading position, then a short toast says so.
  */
 export function UpdateHost({
-  onOfflineReadyChange,
   register = registerServiceWorker,
   reload = reloadPage,
 }: UpdateHostProps) {
@@ -40,11 +37,6 @@ export function UpdateHost({
     afterUpdate === null ? null : UI_TEXT.updated,
   );
   const timer = useRef<number | undefined>(undefined);
-  const onReadyChange = useRef(onOfflineReadyChange);
-
-  useEffect(() => {
-    onReadyChange.current = onOfflineReadyChange;
-  }, [onOfflineReadyChange]);
 
   const showMessage = useCallback((text: string) => {
     setMessage(text);
@@ -75,7 +67,6 @@ export function UpdateHost({
         reload();
       },
       onOfflineReady: () => {
-        onReadyChange.current?.(true);
         showMessage(UI_TEXT.offlineReady);
       },
       onRegistered: (value) => {

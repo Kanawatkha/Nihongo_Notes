@@ -304,3 +304,34 @@
     display: none;
   }
 }
+
+/*
+ * Vocabulary layout: one column on phone and tablet; from 1024 px a contents rail and the main
+ * column. Closing the rail shrinks its column to the width of the toggle, and the main column (1fr)
+ * grows into the freed space, so the content slides sideways and widens in one motion.
+ */
+.vocab-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .vocab-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+    column-gap: 48px;
+    transition:
+      grid-template-columns 520ms cubic-bezier(0.22, 1, 0.36, 1),
+      column-gap 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .vocab-layout[data-rail='closed'] {
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vocab-layout {
+    transition: none;
+  }
+}

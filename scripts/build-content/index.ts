@@ -60,27 +60,22 @@ export function buildContent(root: string): BuildResult {
     }
   }
 
-  const vocab = files.filter((file) => file.collection === 'vocab');
-  for (const file of vocab) {
-    if (!file.meta.label) {
-      throw new ContentError(
-        `content/vocab/${file.key}.md`,
-        1,
-        'vocab files need a "label" in front matter',
-      );
+  // Every file is a chip on its page: it needs a label, and the order of the chips must be clear
+  for (const collection of COLLECTIONS) {
+    const group = files.filter((file) => file.collection === collection);
+    for (const file of group) {
+      const path = `content/${collection}/${file.key}.md`;
+      if (!file.meta.label) {
+        throw new ContentError(path, 1, 'files need a "label" in front matter');
+      }
+      if (file.meta.order === undefined) {
+        throw new ContentError(path, 1, 'files need an "order" in front matter');
+      }
     }
-  }
-  const defaults = vocab.filter((file) => file.meta.order === 1);
-  if (defaults.length !== 1) {
-    throw new ContentError(
-      'content/vocab',
-      1,
-      `exactly one vocab file must have "order: 1" (found ${defaults.length})`,
-    );
-  }
-  const orders = vocab.map((file) => file.meta.order);
-  if (new Set(orders).size !== orders.length) {
-    throw new ContentError('content/vocab', 1, 'vocab files must have unique "order" values');
+    const orders = group.map((file) => file.meta.order);
+    if (new Set(orders).size !== orders.length) {
+      throw new ContentError(`content/${collection}`, 1, 'files must have unique "order" values');
+    }
   }
 
   const warnings = files.flatMap(findDuplicateRomaji);

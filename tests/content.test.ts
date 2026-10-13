@@ -40,11 +40,17 @@ describe('real content', () => {
     expect(onDisk('exam')).toEqual([...EXAM_FILES].sort());
   });
 
-  it('lists the default vocab set and the current quiz first in the registry (used for prefetching)', () => {
-    const vocab = result.files.find((file) => file.key === VOCAB_FILES[0]);
-    expect(vocab?.meta.order).toBe(1);
-    const exam = result.files.find((file) => file.key === EXAM_FILES[0]);
-    expect(exam?.meta.archived).toBeFalsy();
+  it('lists the registry in the same order as the front matter `order` (the chip order)', () => {
+    for (const [collection, registry] of [
+      ['vocab', VOCAB_FILES],
+      ['exam', EXAM_FILES],
+    ] as const) {
+      const byOrder = result.files
+        .filter((file) => file.collection === collection)
+        .sort((a, b) => (a.meta.order ?? 0) - (b.meta.order ?? 0))
+        .map((file) => file.key);
+      expect(byOrder).toEqual([...registry]);
+    }
   });
 
   it('keeps vocabulary merged by topic: no heading splits the words by chapter', () => {
@@ -75,12 +81,14 @@ describe('real content', () => {
     }
   });
 
-  it('has exactly one default vocab set and labels on every vocab file', () => {
-    const vocab = result.files.filter((file) => file.collection === 'vocab');
-    expect(vocab.filter((file) => file.meta.order === 1)).toHaveLength(1);
-    expect(vocab.every((file) => Boolean(file.meta.label))).toBe(true);
-    const archived = result.files.filter((file) => file.meta.archived);
-    expect(archived.map((file) => file.key)).toEqual(['quiz1-ch1-2']);
+  it('gives every file a label and a unique order within its collection', () => {
+    for (const collection of ['vocab', 'exam'] as const) {
+      const files = result.files.filter((file) => file.collection === collection);
+      expect(files.every((file) => Boolean(file.meta.label))).toBe(true);
+      const orders = files.map((file) => file.meta.order);
+      expect(orders.every((order) => typeof order === 'number')).toBe(true);
+      expect(new Set(orders).size).toBe(orders.length);
+    }
   });
 
   it('keeps word and reading counts stable (review changes, do not accept blindly)', () => {

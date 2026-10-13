@@ -9,7 +9,7 @@ export type FrontMatterResult = {
   bodyStartLine: number;
 };
 
-const KNOWN_KEYS = new Set(['label', 'order', 'facts', 'archived']);
+const KNOWN_KEYS = new Set(['label', 'order', 'facts']);
 
 /** Reads the optional `key: value` block between `---` fences at the top of a file. */
 export function parseFrontMatter(source: string, file: string): FrontMatterResult {
@@ -45,11 +45,6 @@ export function parseFrontMatter(source: string, file: string): FrontMatterResul
         throw new ContentError(file, index + 1, `"order" must be a positive integer`);
       }
       meta.order = order;
-    } else if (key === 'archived') {
-      if (value !== 'true' && value !== 'false') {
-        throw new ContentError(file, index + 1, `"archived" must be true or false`);
-      }
-      meta.archived = value === 'true';
     } else if (key === 'label') {
       meta.label = value;
     } else {

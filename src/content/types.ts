@@ -49,7 +49,6 @@ export type ContentMeta = {
   label?: string;
   order?: number;
   facts?: string;
-  archived?: boolean;
 };
 
 export type ContentFile = {
@@ -78,7 +77,6 @@ export type ManifestFile = {
   label?: string;
   order?: number;
   facts?: string;
-  archived?: boolean;
   title: string;
   wordCount: number;
   readingCount: number;

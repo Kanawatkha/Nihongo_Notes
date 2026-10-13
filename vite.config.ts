@@ -72,9 +72,6 @@ export default defineConfig(({ command, isPreview }) => ({
       },
     }),
   ],
-  define: {
-    __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
-  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

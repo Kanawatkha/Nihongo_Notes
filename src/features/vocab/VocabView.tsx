@@ -8,6 +8,7 @@ import { contentsItems } from './contentsItems';
 import { RomajiTicker } from './RomajiTicker';
 import { tickerWords } from './tickerWords';
 import { useActiveSection } from './useActiveSection';
+import { useRailOpen } from './useRailOpen';
 
 type VocabViewProps = {
   file: ContentFile;
@@ -23,6 +24,7 @@ export function VocabView({ file, targetId, onSelect }: VocabViewProps) {
   const ids = useMemo(() => items.map((item) => item.id), [items]);
   const words = useMemo(() => tickerWords(file), [file]);
   const activeId = useActiveSection(ids);
+  const [railOpen, toggleRail] = useRailOpen();
 
   useEffect(() => {
     if (!targetId) return;
@@ -45,10 +47,16 @@ export function VocabView({ file, targetId, onSelect }: VocabViewProps) {
     >
       <RomajiTicker words={words} />
       <PageContainer>
-        <div className="relative grid grid-cols-[minmax(0,1fr)] gap-x-12 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <ContentsRail items={items} activeId={activeId} onSelect={select} />
+        <div className="vocab-layout relative" data-rail={railOpen ? 'open' : 'closed'}>
+          <ContentsRail
+            items={items}
+            activeId={activeId}
+            onSelect={select}
+            open={railOpen}
+            onToggle={toggleRail}
+          />
           <ContentsChips items={items} activeId={activeId} onSelect={select} />
-          <div className="mx-auto w-full max-w-[880px] pt-8 pb-section lg:col-start-2 lg:row-start-1">
+          <div className="min-w-0 pt-8 pb-section lg:col-start-2 lg:row-start-1">
             {file.nodes.map((node, index) => (
               <NodeView key={node.id} node={node} index={index} bands />
             ))}

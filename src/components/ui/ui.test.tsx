@@ -1,14 +1,17 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { setReducedMotion } from '@/test/reducedMotion';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger } from '@/components/motion/Stagger';
 import { Button, ButtonLink } from './Button';
 import { Chip } from './Chip';
-import { Disclosure } from './Disclosure';
+import { SetSwitch } from './SetSwitch';
 import { Skeleton } from './Skeleton';
 import { Toast } from './Toast';
+
+// Motion reads the reduced-motion preference once, at its first use: set it before any render
+beforeEach(() => setReducedMotion(true));
 
 describe('Chip', () => {
   it('exposes its state with aria-pressed and is clickable', () => {
@@ -43,21 +46,25 @@ describe('Button and ButtonLink', () => {
   });
 });
 
-describe('Disclosure', () => {
-  it('toggles its panel and aria-expanded', () => {
-    setReducedMotion(true);
-    render(<Disclosure title="สอบครั้งที่ 1">เนื้อหา</Disclosure>);
-    const button = screen.getByRole('button', { name: 'สอบครั้งที่ 1' });
-    expect(button).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByText('เนื้อหา')).not.toBeInTheDocument();
+describe('SetSwitch', () => {
+  const sets = [
+    { param: '1-2', label: 'บท 1-2' },
+    { param: '3-4', label: 'บท 3-4' },
+  ];
 
-    fireEvent.click(button);
-    expect(button).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('เนื้อหา')).toBeInTheDocument();
-    expect(button).toHaveAttribute('aria-controls', screen.getByRole('region').id);
+  it('keeps the given order and has nothing pressed while no set is chosen', () => {
+    render(<SetSwitch sets={sets} activeParam={null} onChange={() => {}} label="เลือกบท" />);
+    const buttons = within(screen.getByRole('group', { name: 'เลือกบท' })).getAllByRole('button');
+    expect(buttons.map((button) => button.textContent)).toEqual(['บท 1-2', 'บท 3-4']);
+    expect(buttons.every((button) => button.getAttribute('aria-pressed') === 'false')).toBe(true);
+  });
 
-    fireEvent.click(button);
-    expect(button).toHaveAttribute('aria-expanded', 'false');
+  it('reports the chosen param', () => {
+    const onChange = vi.fn();
+    render(<SetSwitch sets={sets} activeParam="1-2" onChange={onChange} label="เลือกบท" />);
+    expect(screen.getByRole('button', { name: 'บท 1-2' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'บท 3-4' }));
+    expect(onChange).toHaveBeenCalledWith('3-4');
   });
 });
 

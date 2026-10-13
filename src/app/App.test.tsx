@@ -19,10 +19,10 @@ describe('App', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
-  it('renders the exam page at /exam', async () => {
+  it('renders the exam page at /exam, empty until a quiz is chosen', async () => {
     window.location.hash = '#/exam';
     render(<App />);
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('สอบพูดครั้งที่ 2');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(/^แนวสอบ$/);
   });
 
   it('renders the not-found page for unknown routes', async () => {

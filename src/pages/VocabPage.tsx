@@ -2,15 +2,14 @@ import { useSearchParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { LoadError } from '@/components/ui/LoadError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { SetSwitch, type SwitchSet } from '@/components/ui/SetSwitch';
+import { UI_TEXT } from '@/config/site';
 import type { ManifestFile } from '@/content/types';
-import { SetSwitch, type VocabSet } from '@/features/vocab/SetSwitch';
 import { VocabHero } from '@/features/vocab/VocabHero';
 import { VocabView } from '@/features/vocab/VocabView';
 import { useContentFile, useManifest } from '@/hooks/useContentFile';
 import { usePageTitle } from '@/hooks/usePageTitle';
-
-/** `ch3-4` <-> `3-4`: the value of `?set=`. */
-const toParam = (key: string): string => key.replace(/^ch/, '');
+import { setParamOf } from '@/lib/setParam';
 
 type SectionsProps = {
   file: ManifestFile;
@@ -48,10 +47,8 @@ export function VocabPage() {
           .filter((file) => file.collection === 'vocab')
           .sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
       : [];
-  const active =
-    files.find((file) => toParam(file.key) === params.get('set')) ??
-    files.find((file) => file.order === 1) ??
-    files[0];
+  // Nothing is shown until a set is chosen; an unknown `?set=` counts as not chosen
+  const active = files.find((file) => setParamOf(file.key) === params.get('set')) ?? null;
 
   usePageTitle(active?.label ? `คำศัพท์ ${active.label}` : 'คำศัพท์');
 
@@ -63,7 +60,7 @@ export function VocabPage() {
     );
   }
 
-  if (!active) {
+  if (manifest.status === 'loading') {
     return (
       <PageContainer>
         <div className="py-section">
@@ -73,31 +70,40 @@ export function VocabPage() {
     );
   }
 
-  const sets: VocabSet[] = files.map((file) => ({
-    param: toParam(file.key),
+  const sets: SwitchSet[] = files.map((file) => ({
+    param: setParamOf(file.key),
     label: file.label ?? file.key,
   }));
 
   const changeSet = (param: string) => setParams({ set: param });
   const selectGroup = (id: string) => {
+    if (!active) return;
     const group = id.split('/').slice(2).join('/');
-    setParams({ set: toParam(active.key), g: group }, { replace: true });
+    setParams({ set: setParamOf(active.key), g: group }, { replace: true });
   };
 
   return (
     <>
       <PageContainer>
         <VocabHero
-          label={active.label ?? active.key}
-          words={active.wordCount}
-          readings={active.readingCount}
-          sections={active.headings.filter((heading) => heading.level === 3).length}
+          chosen={
+            active && {
+              label: active.label ?? active.key,
+              words: active.wordCount,
+              readings: active.readingCount,
+              sections: active.headings.filter((heading) => heading.level === 3).length,
+            }
+          }
         />
-        {sets.length > 1 && (
-          <SetSwitch sets={sets} activeParam={toParam(active.key)} onChange={changeSet} />
-        )}
+        <SetSwitch
+          sets={sets}
+          activeParam={active ? setParamOf(active.key) : null}
+          onChange={changeSet}
+          label={UI_TEXT.chooseVocab}
+        />
+        {!active && <div className="pb-section" />}
       </PageContainer>
-      <Sections file={active} group={params.get('g')} onSelect={selectGroup} />
+      {active && <Sections file={active} group={params.get('g')} onSelect={selectGroup} />}
     </>
   );
 }

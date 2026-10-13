@@ -1,19 +1,25 @@
 import { HeroTitle } from '@/components/motion/HeroTitle';
 import { MonoLabel } from '@/components/ui/MonoLabel';
-import type { ContentFile } from '@/content/types';
-import { plainText } from '@/lib/text';
+import { UI_TEXT } from '@/config/site';
 
 type ExamHeroProps = {
-  file: ContentFile;
+  /** The chosen quiz, or null while nothing is chosen. */
+  chosen: { label: string; title: string; facts?: string } | null;
 };
 
-/** Page opening: label, the quiz title and its facts line (date, points, time). */
-export function ExamHero({ file }: ExamHeroProps) {
+/** Page opening: label, the quiz title and its facts line (date, points, time), or the prompt to pick a quiz. */
+export function ExamHero({ chosen }: ExamHeroProps) {
   return (
     <section className="py-12 text-center md:py-20 lg:py-section [@media(max-height:500px)]:py-6">
-      <MonoLabel className="text-body-muted">Oral exam · {file.meta.label}</MonoLabel>
-      <HeroTitle className="type-product-display mt-6">{plainText(file.title)}</HeroTitle>
-      {file.meta.facts && <p className="type-body-large mt-6 text-body-muted">{file.meta.facts}</p>}
+      <MonoLabel className="text-body-muted">
+        {chosen ? `Oral exam · ${chosen.label}` : 'Oral exam'}
+      </MonoLabel>
+      <HeroTitle key={chosen?.title ?? ''} className="type-product-display mt-6">
+        {chosen ? chosen.title : 'แนวสอบ'}
+      </HeroTitle>
+      <p className="type-body-large mt-6 text-body-muted">
+        {chosen ? chosen.facts : UI_TEXT.chooseExam}
+      </p>
     </section>
   );
 }

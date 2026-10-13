@@ -15,11 +15,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
 ];
 
 /**
- * Content registry. Keys are Markdown file names without extension under content/<collection>/.
- * A test checks that this list matches the files on disk.
+ * Content registry, in the order of the set chips (lowest chapter first). Keys are Markdown file
+ * names without extension under content/<collection>/. A test checks that this list matches the
+ * files on disk and the `order` in their front matter.
  */
-export const VOCAB_FILES = ['ch3-4', 'ch1-2'] as const;
-export const EXAM_FILES = ['quiz2-ch3-4', 'quiz1-ch1-2'] as const;
+export const VOCAB_FILES = ['ch1-2', 'ch3-4'] as const;
+export const EXAM_FILES = ['quiz1-ch1-2', 'quiz2-ch3-4'] as const;
 
 /**
  * Where each question pattern of the current quiz points on the vocabulary page: the pattern's
@@ -40,8 +41,16 @@ export const UI_TEXT = {
   retry: 'ลองอีกครั้ง',
   notFound: 'ไม่พบหน้านี้',
   backToVocab: 'กลับหน้าคำศัพท์',
+  share: 'แชร์เว็บไซต์',
+  shareHint: 'สแกน QR หรือคัดลอกลิงก์',
+  copyLink: 'คัดลอกลิงก์',
+  linkCopied: 'คัดลอกลิงก์แล้ว',
+  dismiss: 'ปิด',
+  contentsHide: 'ซ่อนสารบัญ',
+  contentsShow: 'แสดงสารบัญ',
+  chooseVocab: 'เลือกบทที่ต้องการเรียน',
+  chooseExam: 'เลือกชุดข้อสอบที่ต้องการดู',
   offlineReady: 'ใช้งานออฟไลน์ได้แล้ว',
-  offlineStatus: 'ใช้งานออฟไลน์ได้',
   updated: 'อัปเดตเป็นเวอร์ชันล่าสุดแล้ว',
   tableLink: 'ดูตาราง',
   answer: 'ตอบ',

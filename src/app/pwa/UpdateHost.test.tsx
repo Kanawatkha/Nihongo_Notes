@@ -50,11 +50,9 @@ afterEach(() => {
 describe('UpdateHost', () => {
   it('registers once and announces that the site works offline', () => {
     const { register, handlers } = harness();
-    const onChange = vi.fn();
-    render(<UpdateHost register={register} onOfflineReadyChange={onChange} />);
+    render(<UpdateHost register={register} />);
 
     act(() => handlers().onOfflineReady());
-    expect(onChange).toHaveBeenCalledWith(true);
     expect(screen.getByRole('status')).toHaveTextContent('ใช้งานออฟไลน์ได้แล้ว');
 
     act(() => {

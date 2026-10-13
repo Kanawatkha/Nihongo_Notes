@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
+import { Icon } from '@/components/ui/Icon';
+import { UI_TEXT } from '@/config/site';
 import { cn } from '@/lib/cn';
 import type { ContentsItem } from './contentsItems';
 
@@ -9,47 +11,141 @@ type ContentsProps = {
   onSelect: (id: string) => void;
 };
 
-/** Sticky left rail (desktop): chapters and sections, with a bar that slides to the section in view. */
-export function ContentsRail({ items, activeId, onSelect }: ContentsProps) {
+type ContentsRailProps = ContentsProps & {
+  open: boolean;
+  onToggle: () => void;
+};
+
+const listVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.015, delayChildren: 0.12 } },
+};
+
+const rowVariants: Variants = {
+  hidden: { opacity: 0, x: -12 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
+};
+
+/**
+ * Sticky left rail (desktop): chapters and sections, with a bar that slides to the section in view.
+ * The toggle stays put at the left edge. The grid column around it shrinks to the toggle's width
+ * when closed (see `.vocab-layout`) while the list keeps a fixed width, so its text never rewraps.
+ */
+export function ContentsRail({ items, activeId, onSelect, open, onToggle }: ContentsRailProps) {
+  const reduceMotion = useReducedMotion();
+  const navRef = useRef<HTMLElement>(null);
+
+  // Keep the highlighted entry visible inside the rail while the page scrolls
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || !activeId) return;
+    const entry = [...nav.querySelectorAll<HTMLElement>('[data-rail-id]')].find(
+      (element) => element.dataset.railId === activeId,
+    );
+    if (!entry) return;
+    const margin = 24;
+    const top = entry.offsetTop;
+    const bottom = top + entry.offsetHeight;
+    if (top >= nav.scrollTop + margin && bottom <= nav.scrollTop + nav.clientHeight - margin) {
+      return;
+    }
+    nav.scrollTo({
+      top: top - (nav.clientHeight - entry.offsetHeight) / 2,
+      behavior: reduceMotion ? 'instant' : 'smooth',
+    });
+  }, [activeId, open, reduceMotion]);
+
+  const label = open ? UI_TEXT.contentsHide : UI_TEXT.contentsShow;
+
   return (
-    <nav
-      aria-label="สารบัญ"
-      className="sticky top-24 hidden max-h-[calc(100dvh-8rem)] self-start overflow-y-auto pr-2 lg:block"
-    >
-      <p className="type-mono-label mb-3 text-body-muted">สารบัญ</p>
-      <ul className="space-y-0.5">
-        {items.map((item) => {
-          const active = item.id === activeId;
-          return (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(item.id)}
-                aria-current={active ? 'true' : undefined}
-                className={cn(
-                  'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors',
-                  item.level === 2 ? 'mt-4 pl-3 font-medium first:mt-0' : 'pl-6',
-                  active ? 'text-primary' : 'text-body-muted',
-                )}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="rail-bar"
-                    aria-hidden="true"
-                    className="absolute top-0 bottom-0 left-0 w-0.5 bg-primary"
-                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                  />
-                )}
-                {item.level === 3 && item.number && (
-                  <span className="type-mono-label mr-1.5 normal-case">{item.number}</span>
-                )}
-                {item.title}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    <aside className="sticky top-24 hidden max-h-[calc(100dvh-8rem)] self-start overflow-hidden lg:flex lg:flex-col">
+      <div className="relative flex h-11 w-60 shrink-0 items-center">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          aria-label={label}
+          title={label}
+          className="relative z-10 inline-flex size-11 items-center justify-center rounded-sm text-ink transition-[background-color,transform] -outline-offset-2 hover:bg-soft-stone active:scale-95"
+        >
+          <Icon
+            name="panel-left"
+            size={20}
+            className={cn(
+              'transition-transform duration-500 ease-out motion-reduce:transition-none',
+              !open && '-scale-x-100',
+            )}
+          />
+        </button>
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.p
+              key="label"
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.2 }}
+              className="type-mono-label ml-1 text-body-muted"
+            >
+              สารบัญ
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.nav
+            key="list"
+            ref={navRef}
+            aria-label="สารบัญ"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.22 }}
+            className="relative mt-2 min-h-0 w-60 flex-1 overflow-y-auto pr-2"
+          >
+            <motion.ul
+              variants={listVariants}
+              initial={reduceMotion ? false : 'hidden'}
+              animate="show"
+              className="space-y-0.5"
+            >
+              {items.map((item) => {
+                const active = item.id === activeId;
+                return (
+                  <motion.li key={item.id} variants={rowVariants}>
+                    <button
+                      type="button"
+                      data-rail-id={item.id}
+                      onClick={() => onSelect(item.id)}
+                      aria-current={active ? 'true' : undefined}
+                      className={cn(
+                        'type-caption relative block w-full rounded-xs py-1.5 pr-2 text-left transition-colors',
+                        item.level === 2 ? 'mt-4 pl-3 font-medium first:mt-0' : 'pl-6',
+                        active ? 'text-primary' : 'text-body-muted',
+                      )}
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="rail-bar"
+                          aria-hidden="true"
+                          className="absolute top-0 bottom-0 left-0 w-0.5 bg-primary"
+                          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                        />
+                      )}
+                      {item.level === 3 && item.number && (
+                        <span className="type-mono-label mr-1.5 normal-case">{item.number}</span>
+                      )}
+                      {item.title}
+                    </button>
+                  </motion.li>
+                );
+              })}
+            </motion.ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </aside>
   );
 }
 

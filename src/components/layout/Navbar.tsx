@@ -1,15 +1,27 @@
+import { useCallback, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { COURSE_CODE, NAV_ITEMS } from '@/config/site';
+import { NAV_ITEMS, UI_TEXT } from '@/config/site';
 import { cn } from '@/lib/cn';
-import { MonoLabel } from '@/components/ui/MonoLabel';
+import { Icon } from '@/components/ui/Icon';
 import { Logo } from './Logo';
+import { ShareDialog } from './ShareDialog';
 
 /**
- * Sticky top bar. Desktop and tablet: mark + wordmark, centered links, course code.
- * Phone: mark and the two links stay visible (no menu). The active link has a sliding underline.
+ * Sticky top bar. Desktop and tablet: mark + wordmark, centered links, share button on the right.
+ * Phone: mark, the two links and the share button stay visible (no menu). The active link has a
+ * sliding underline; the share button opens a card with a QR code and the link.
  */
 export function Navbar() {
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareRef = useRef<HTMLButtonElement>(null);
+  const siteUrl = `${window.location.origin}${import.meta.env.BASE_URL}`;
+
+  const closeShare = useCallback(() => {
+    setShareOpen(false);
+    shareRef.current?.focus();
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 [@media(max-height:500px)]:static border-b border-hairline bg-canvas pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-14 w-full max-w-[1200px] items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] md:grid md:h-16 md:grid-cols-[1fr_auto_1fr] md:px-8">
@@ -44,10 +56,19 @@ export function Navbar() {
           ))}
         </nav>
 
-        <MonoLabel className="hidden justify-self-end text-body-muted md:block">
-          {COURSE_CODE}
-        </MonoLabel>
+        <button
+          ref={shareRef}
+          type="button"
+          onClick={() => setShareOpen(true)}
+          aria-label={UI_TEXT.share}
+          aria-haspopup="dialog"
+          className="inline-flex size-11 items-center justify-center rounded-sm bg-coral text-ink transition-transform active:scale-95 md:justify-self-end"
+        >
+          <Icon name="share" size={20} />
+        </button>
       </div>
+
+      <ShareDialog open={shareOpen} onClose={closeShare} url={siteUrl} />
     </header>
   );
 }

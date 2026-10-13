@@ -43,18 +43,17 @@ describe('inline parser', () => {
 
 describe('front matter', () => {
   it('reads known keys', () => {
-    const result = parseFrontMatter(
-      '---\nlabel: บท 3-4\norder: 1\narchived: true\n---\n# T\n',
-      FILE,
-    );
-    expect(result.meta).toEqual({ label: 'บท 3-4', order: 1, archived: true });
+    const result = parseFrontMatter('---\nlabel: บท 3-4\norder: 2\nfacts: a · b\n---\n# T\n', FILE);
+    expect(result.meta).toEqual({ label: 'บท 3-4', order: 2, facts: 'a · b' });
     expect(result.bodyStartLine).toBe(6);
   });
 
   it('rejects unknown keys and bad values', () => {
     expect(() => parseFrontMatter('---\nfoo: 1\n---\n', FILE)).toThrow(/unknown front matter key/);
     expect(() => parseFrontMatter('---\norder: x\n---\n', FILE)).toThrow(/positive integer/);
-    expect(() => parseFrontMatter('---\narchived: yes\n---\n', FILE)).toThrow(/true or false/);
+    expect(() => parseFrontMatter('---\narchived: true\n---\n', FILE)).toThrow(
+      /unknown front matter key/,
+    );
     expect(() => parseFrontMatter('---\nlabel: a\n', FILE)).toThrow(/not closed/);
   });
 });
