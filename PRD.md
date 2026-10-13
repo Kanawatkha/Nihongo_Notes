@@ -1,0 +1,105 @@
+# PRD: Nihongo Notes
+
+Product requirements for the vocabulary study website. Status: planned, not built.
+
+## 1. Purpose
+
+Give one student a fast, beautiful place to memorize JN60101 vocabulary and review how the oral quizzes work. The quizzes ask Thai -> Japanese words and short spoken answers, so the site is built around scanning and memorizing word lists, not reading long prose.
+
+## 2. Users and context
+
+- **Primary user:** the author, a Thai student, studying on phone, tablet and laptop, often right before an exam, sometimes offline.
+- **Secondary:** classmates who get the link. The repository is public.
+- Content language: romaji (Japanese) + Thai. Documents and code: English.
+
+## 3. Goals
+
+1. Find any word of chapters 1-4 within two taps or one scroll.
+2. Groups are short and visually separated so each can be memorized in one sitting.
+3. Exam patterns (question -> answer template -> example) are visible at a glance.
+4. Read comfortably on a 360 px phone and on a desktop.
+5. Work offline after the first visit and update to new versions automatically, with no button to press.
+6. Look polished and calm with tasteful motion, following `DESIGN-cohere.md`.
+7. Content changes are cheap: edit Markdown, push, site updates.
+
+## 4. Non-goals
+
+- No exercises, quizzes, flashcards or answer toggles in this version (possible later, see section 10).
+- No kana or kanji. Romaji only.
+- No backend, accounts, analytics, progress tracking or user data.
+- No dark theme (light canvas with dark feature bands, as the design standard does).
+- No in-browser Markdown parsing, no editing UI.
+
+## 5. Information architecture
+
+Two pages, client-side routes (`HashRouter`):
+
+| Page | Route | Source content |
+|---|---|---|
+| คำศัพท์ (Vocabulary) | `#/` with set switch `?set=3-4` (default) or `?set=1-2` | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
+| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz2-ch3-4.md` (main), `content/exam/quiz1-ch1-2.md` (archive) |
+
+Plus a not-found route. Navigation: top navbar with two links.
+
+## 6. Features
+
+### F1 Vocabulary page
+All words of the selected set as one list grouped by topic (places, things, questions, expressions, time, numbers, money, sentences), not split by chapter; the Markdown parts, sections and sub-groups give the order. Each word shows romaji (large) and Thai meaning. Number tables (1-10, hours, minutes, hundreds, thousands) render as tile grids. Irregular readings (bold in Markdown) get an accent marker. Memory tips (`>` lines) render as small callouts. A contents rail (desktop) or chip row (phone) jumps between groups.
+
+### F2 Set switch
+Large chips switch between "บท 3-4" (default, current exam) and "บท 1-2" (archive). The choice is kept in the URL.
+
+### F3 Exam guide page
+Exam facts (date, score split, time per person), the five question patterns with answer templates and examples, the worked examples from the lecturer's guide, and the reference tables needed to answer (time, phone, price). Quiz 1 (chapters 1-2) sits below as a collapsible archive section with the self-introduction script.
+
+### F4 Motion
+Restrained, meaningful animation: hero text reveal, rows fading up as they enter, sliding active indicator on chips and the contents rail, a slow romaji ticker strip, pattern cards that reveal question then answer. All of it disabled under `prefers-reduced-motion`. Details in `UI-SPEC.md` section 6.
+
+### F5 Responsive layout
+Desktop, tablet and phone (portrait and landscape) are equally important. Mobile-first design with defined per-device layouts, 44 px touch targets and safe areas. See `UI-SPEC.md` section 7.
+
+### F6 Offline and auto-update
+After the first load everything works with no network. A new deployment is installed and applied automatically (no prompt). See `DEPLOY.md` section 6.
+
+### F7 Brand
+Name "Nihongo Notes". Original mark (see `UI-SPEC.md` section 8). No Cohere, Anthropic or Claude marks.
+
+## 7. Content requirements
+
+- Markdown is the single source of truth. Romaji and Thai are preserved character for character.
+- Romaji spelled as in the slides. Unknown meanings are asked, never guessed.
+- Structure rules in `CONTENT-SCHEMA.md`.
+
+## 8. Non-functional requirements
+
+| Area | Requirement |
+|---|---|
+| Performance | Under 200 KB gzip JS+CSS per route (fonts excluded); LCP under 2.5 s on a mid-range phone over 4G; CLS under 0.1 (measured in Phase 8: about 135 KB JS+CSS gzip, CLS 0, LCP 2.8 s in Lighthouse's throttled mobile profile, so the LCP goal is slightly missed there; Lighthouse performance 93-94) |
+| Accessibility | WCAG 2.2 AA contrast, full keyboard use, visible focus, correct heading order, reduced motion honored |
+| Compatibility | Last 2 versions of Chrome, Safari, Firefox, Edge; iOS Safari 16+ |
+| Correctness | Build fails on unknown Markdown constructs, any kana/kanji, bad romaji characters, or a failed round-trip |
+| Hosting | GitHub Pages only, deployed by GitHub Actions |
+
+## 9. Acceptance criteria
+
+1. Both content sets and both exam files convert without error; the round-trip test passes.
+2. Every word in `ch1-2` and `ch3-4` appears on the vocabulary page (count matches the build report).
+3. The exam page shows all five question patterns and all worked examples from the Markdown.
+4. Layouts verified at 360x640, 390x844, 768x1024, 1024x768, 1440x900 and 844x390 with no horizontal page scroll.
+5. Offline: load once, go offline, reload, both pages and both sets work.
+6. A new deploy reaches an open tab without any user action.
+7. Lighthouse mobile: Performance 90+, Accessibility 95+, Best Practices 95+.
+
+## 10. Later (not in this version)
+
+- Hide-meaning mode (cover Thai or romaji to self-test), flashcards, shuffled drills.
+- Chapters 5-6 for quiz 3.
+
+## 11. Risks and open items
+
+| Item | Handling |
+|---|---|
+| Thai font (DESIGN-cohere has none) | Decided: IBM Plex Sans Thai, see `UI-SPEC.md` section 2 |
+| Macron glyphs (ā ī ū ē ō) must render in the display and body fonts | Load the `latin-ext` subsets; visual check in Phase 3 |
+| Quiz 2 is on 14 Oct 2026, likely before the site ships | The Markdown files remain the study copy; the site serves later review and quiz 3 |
+| Repository | Decided: `Kanawatkha/Nihongo_Notes`, see `DEPLOY.md` section 1 |
