@@ -18,16 +18,13 @@ type SetSwitchProps = {
 /** Set switch: large coral chips in the given order; the active fill slides between them. */
 export function SetSwitch({ sets, activeParam, onChange, label }: SetSwitchProps) {
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center"
-    >
+    <div role="group" aria-label={label} className="flex flex-wrap justify-center gap-3">
       {sets.map((set) => (
         <Chip
           key={set.param}
           layoutId="set-chip"
           active={set.param === activeParam}
+          className="whitespace-nowrap max-sm:grow"
           onClick={() => onChange(set.param)}
         >
           {set.label}
