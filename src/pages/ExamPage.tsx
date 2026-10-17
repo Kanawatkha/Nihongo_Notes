@@ -1,12 +1,12 @@
 import { useSearchParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHero } from '@/components/layout/PageHero';
 import { LoadError } from '@/components/ui/LoadError';
 import { SetSwitch, type SwitchSet } from '@/components/ui/SetSwitch';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { UI_TEXT } from '@/config/site';
 import type { ManifestFile } from '@/content/types';
-import { ExamHero } from '@/features/exam/ExamHero';
 import { ExamView } from '@/features/exam/ExamView';
 import { useContentFile, useManifest } from '@/hooks/useContentFile';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -69,14 +69,11 @@ export function ExamPage() {
 
   return (
     <PageContainer>
-      <ExamHero
-        chosen={
-          active && {
-            label: active.label ?? active.key,
-            title: active.title,
-            ...(active.facts ? { facts: active.facts } : {}),
-          }
-        }
+      <PageHero
+        eyebrow={active ? `Oral exam · ${active.label ?? active.key}` : 'Oral exam'}
+        title={active ? active.title : 'แนวสอบ'}
+        subtitle={active ? active.facts : UI_TEXT.chooseExam}
+        titleKey={active?.key}
       />
       <SetSwitch
         sets={sets}
@@ -84,7 +81,7 @@ export function ExamPage() {
         onChange={(param) => setParams({ set: param })}
         label={UI_TEXT.chooseExam}
       />
-      <div className="mx-auto max-w-[1100px] pt-12 pb-section">
+      <div className="mx-auto max-w-[1100px] pt-8 pb-section">
         {active && <Quiz file={active} />}
       </div>
     </PageContainer>

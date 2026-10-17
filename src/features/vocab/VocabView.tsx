@@ -45,7 +45,9 @@ export function VocabView({ file, targetId, onSelect }: VocabViewProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
     >
-      <RomajiTicker words={words} />
+      <div className="pt-8">
+        <RomajiTicker words={words} />
+      </div>
       <PageContainer>
         <div className="vocab-layout relative" data-rail={railOpen ? 'open' : 'closed'}>
           <ContentsRail

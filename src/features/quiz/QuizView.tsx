@@ -96,7 +96,7 @@ export function QuizView({ file, config, kind, onKindChange, rng }: QuizViewProp
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px] pb-section">
+    <div className="mx-auto w-full max-w-[720px]">
       <KindChips kinds={deck.kinds} active={activeKind} onChange={changeKind} />
 
       <p className="type-caption mt-6 text-center text-body-muted">

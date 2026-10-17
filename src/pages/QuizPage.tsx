@@ -1,8 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
-import { HeroTitle } from '@/components/motion/HeroTitle';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHero } from '@/components/layout/PageHero';
 import { LoadError } from '@/components/ui/LoadError';
-import { MonoLabel } from '@/components/ui/MonoLabel';
 import { SetSwitch, type SwitchSet } from '@/components/ui/SetSwitch';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QUIZ_KINDS, QUIZ_SETS, type QuizKind } from '@/config/quiz';
@@ -88,28 +87,21 @@ export function QuizPage() {
 
   return (
     <PageContainer>
-      {/* Shorter than the other heroes, so the card is on the first screen */}
-      <section className="py-8 text-center md:py-12 lg:py-14 [@media(max-height:500px)]:py-4">
-        <MonoLabel className="text-body-muted">
-          {active ? `Flash cards · ${active.label ?? active.key}` : 'Flash cards'}
-        </MonoLabel>
-        <HeroTitle key={active?.key ?? ''} className="type-product-display mt-4">
-          {active ? `แบบทดสอบ ${active.label ?? active.key}` : 'แบบทดสอบ'}
-        </HeroTitle>
-        <p className="type-body-large mt-4 text-body-muted">
-          {active ? UI_TEXT.quizIntro : UI_TEXT.chooseQuiz}
-        </p>
-      </section>
+      <PageHero
+        eyebrow={active ? `Flash cards · ${active.label ?? active.key}` : 'Flash cards'}
+        title={active ? `แบบทดสอบ ${active.label ?? active.key}` : 'แบบทดสอบ'}
+        subtitle={active ? UI_TEXT.quizIntro : UI_TEXT.chooseQuiz}
+        titleKey={active?.key}
+      />
       <SetSwitch
         sets={sets}
         activeParam={active ? setParamOf(active.key) : null}
         onChange={(param) => setParams({ set: param })}
         label={UI_TEXT.chooseQuiz}
       />
-      <div className="pt-8">
+      <div className="pt-8 pb-section">
         {active && <QuizSet file={active} kind={kind} onKindChange={changeKind} />}
       </div>
-      {!active && <div className="pb-section" />}
     </PageContainer>
   );
 }

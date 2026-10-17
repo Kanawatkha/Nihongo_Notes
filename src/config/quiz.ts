@@ -15,7 +15,14 @@ export type QuizKind =
   | 'time'
   | 'phone'
   | 'price'
-  | 'hours';
+  | 'hours'
+  | 'counter'
+  | 'month'
+  | 'day'
+  | 'weekday'
+  | 'date'
+  | 'verb'
+  | 'sentence';
 
 /** Chip label and the short reminder shown with the answer. */
 export const QUIZ_KINDS: Record<QuizKind, { label: string; tip?: string }> = {
@@ -30,7 +37,32 @@ export const QUIZ_KINDS: Record<QuizKind, { label: string; tip?: string }> = {
   phone: { label: 'เบอร์โทร', tip: 'พูดเลขทีละตัว คั่นกลุ่มด้วย no ไม่ต้องใส่ en' },
   price: { label: 'ราคา', tip: 'อย่าลืม en ก่อน desu' },
   hours: { label: 'เวลาเริ่ม-เลิก', tip: 'อย่าลืม gozen หรือ gogo ทั้งเวลาเริ่มและเวลาเลิก' },
+  counter: {
+    label: 'ลักษณนาม',
+    tip: 'ของทั่วไปใช้ hitotsu..., แผ่น/ตัวใช้ ..-mai, ขวด/ด้าม/แท่งใช้ ..-hon (1, 6, 8, 10 อ่านพิเศษ)',
+  },
+  month: {
+    label: 'เดือน',
+    tip: 'เดือน = เลข + gatsu: เมษายน = shi gatsu, กันยายน = ku gatsu, กรกฎาคม = shichi / nana gatsu',
+  },
+  day: {
+    label: 'วันที่',
+    tip: 'วันที่ 1-10 ใช้ -ka อ่านพิเศษทั้งหมด, 14 และ 24 = yok-ka, 20 = hatsu-ka, 19 และ 29 = ku-nichi',
+  },
+  weekday: { label: 'วันในสัปดาห์', tip: 'ชื่อวัน + yōbi: getsu, ka, sui, moku, kin, do, nichi' },
+  date: {
+    label: 'วัน เดือน ปี',
+    tip: 'ญี่ปุ่นเรียง ปี เดือน วันที่ วัน และปีต้องเป็น ค.ศ. (ปีไทย พ.ศ. ลบ 543)',
+  },
+  verb: {
+    label: 'ไป มา กลับ',
+    tip: 'รากกริยา (iki, ki, kaeri) + masu / masen / mashita / masendeshita',
+  },
+  sentence: { label: 'ประโยค' },
 };
+
+/** Items of the counter card: the word, its Thai name and the counter it takes (from the slides). */
+export type CounterItem = { word: string; thai: string; counter: 'general' | 'mai' | 'hon' };
 
 export type QuizSetConfig = {
   /** Kinds in chip order. */
@@ -43,6 +75,8 @@ export type QuizSetConfig = {
   questions: Partial<Record<QuizKind, string>>;
   /** Subjects of the start-end time question (`hours`), with the Thai word shown on the card. */
   hoursSubjects?: { question: string; thai: string }[];
+  /** Things to order with a counter (`counter` kind). */
+  counters?: CounterItem[];
 };
 
 /** Keyed by vocabulary file key (`ch1-2`), so the set chips of the vocabulary page are reused. */
@@ -73,6 +107,29 @@ export const QUIZ_SETS: Record<string, QuizSetConfig> = {
     hoursSubjects: [
       { question: 'Shigoto wa nanji kara nanji made desuka?', thai: 'งาน' },
       { question: 'Kaigi wa nan-ji kara nan-ji made desuka?', thai: 'การประชุม' },
+    ],
+  },
+  'ch5-6': {
+    kinds: ['vocab', 'counter', 'price', 'month', 'day', 'weekday', 'date', 'verb', 'sentence'],
+    vocabParts: ['1'],
+    groups: { sentence: '5' },
+    questions: {
+      price: 'Sono akai T-shatsu wa ikura desu ka.',
+      month: 'Nan gatsu desuka?',
+      day: 'Nan nichi desuka?',
+      weekday: 'Nan yōbi desuka?',
+    },
+    // Counters as used in the exercises and dialogues of chapter 5
+    counters: [
+      { word: 'ringo', thai: 'แอปเปิ้ล', counter: 'general' },
+      { word: 'kōhī kappu', thai: 'แก้วกาแฟ', counter: 'general' },
+      { word: 'shūkurīmu', thai: 'ครีมพัฟ', counter: 'general' },
+      { word: 'T-shatsu', thai: 'เสื้อยืด', counter: 'mai' },
+      { word: 'taoru', thai: 'ผ้าขนหนู', counter: 'mai' },
+      { word: 'hagaki', thai: 'โปสการ์ด', counter: 'mai' },
+      { word: 'kasa', thai: 'ร่ม', counter: 'hon' },
+      { word: 'bīru', thai: 'เบียร์', counter: 'hon' },
+      { word: 'wain', thai: 'ไวน์', counter: 'hon' },
     ],
   },
 };

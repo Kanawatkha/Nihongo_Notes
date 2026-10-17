@@ -1,6 +1,6 @@
 # Nihongo Notes
 
-Vocabulary and oral-exam notes for course JN60101 Japanese for Communication 1 (chapters 1-4). A static, frontend-only site with three pages: a vocabulary page (romaji exactly as in the lecturer's slides, with Thai meanings, grouped for memorizing), an exam guide page, and a flash-card quiz in the shape of the oral exam. It works offline and updates itself.
+Vocabulary and oral-exam notes for course JN60101 Japanese for Communication 1 (chapters 1-6). A static, frontend-only site with three pages: a vocabulary page (romaji exactly as in the lecturer's slides, with Thai meanings, grouped for memorizing), an exam guide page, and a flash-card quiz in the shape of the oral exam. It works offline and updates itself.
 
 Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 
@@ -8,7 +8,7 @@ Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 
 | Page | Route | Source Markdown |
 |---|---|---|
-| คำศัพท์ (Vocabulary) | `#/` (`?set=1-2` or `?set=3-4` chooses the set, nothing is open until then; `?g=2.2` opens a group) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
+| คำศัพท์ (Vocabulary) | `#/` (`?set=1-2`, `?set=3-4` or `?set=5-6` chooses the set, nothing is open until then; `?g=2.2` opens a group) | `content/vocab/ch1-2.md`, `content/vocab/ch3-4.md`, `content/vocab/ch5-6.md` |
 | แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` (`?set=1-2`, `?set=3-4`) |
 | แบบทดสอบ (Flash-card quiz) | `#/quiz` (`?set=1-2` or `?set=3-4`, nothing is open until then; `?type=time` keeps one question kind) | the vocabulary file of the set, plus `src/config/quiz.ts` |
 
@@ -34,7 +34,7 @@ All text lives in Markdown under `content/`. Never edit generated files. Rules: 
 3. Preview with `npm run dev`.
 4. Commit and push to `main`. GitHub Actions checks, builds and publishes the site.
 
-Adding chapters 5-6 later: add `content/vocab/ch5-6.md` and `content/exam/quiz3-ch5-6.md`, register them in `src/config/site.ts` and update `PATTERN_LINKS` (see `ARCHITECTURE.md` section 12).
+Chapters 5-6 have a vocabulary file (`content/vocab/ch5-6.md`) and quiz cards but no exam guide yet. When the third exam is known: add `content/exam/quiz3-ch5-6.md`, register it in `EXAM_FILES` in `src/config/site.ts` and add its question links to `PATTERN_LINKS` (see `ARCHITECTURE.md` section 12).
 
 ## Commands
 

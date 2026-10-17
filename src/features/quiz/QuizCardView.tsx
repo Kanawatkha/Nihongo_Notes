@@ -32,7 +32,11 @@ function Front({ card, number }: { card: QuizCard; number: number }) {
         <p
           className={cn(
             card.promptIsThai
-              ? 'type-quiz-thai break-words'
+              ? cn(
+                  'break-words',
+                  // a whole sentence is longer than a word: a step smaller
+                  card.prompt.length > 24 ? 'type-quiz-thai-long' : 'type-quiz-thai',
+                )
               : cn(
                   'tabular-nums',
                   card.prompt.length > 10 ? 'type-quiz-number-long' : 'type-quiz-number',

@@ -11,6 +11,26 @@ import {
   phoneReading,
   type ReadingPart,
 } from '@/lib/readings';
+import {
+  MONTH_NAMES,
+  VERBS,
+  VERB_FORMS,
+  buddhistToChristian,
+  counterLabel,
+  counterReading,
+  dayReading,
+  daysInMonth,
+  isCounterIrregular,
+  isDayIrregular,
+  isMonthIrregular,
+  monthReading,
+  weekdayIndex,
+  weekdayMeaning,
+  weekdayReading,
+  weekdayThai,
+  yearReading,
+  type VerbForm,
+} from '@/lib/readings56';
 import { plainText } from '@/lib/text';
 
 /** Returns a number in [0, 1), like Math.random. Tests pass a seeded one. */
@@ -73,6 +93,21 @@ function entriesBelow(node: ContentNode, out: VocabEntry[] = []): VocabEntry[] {
   return out;
 }
 
+/** Rows of the two-column `ประโยค | ความหมาย` tables below a node: a sentence and its Thai meaning. */
+function sentencesBelow(node: ContentNode, out: QuizWord[] = []): QuizWord[] {
+  for (const block of node.blocks) {
+    if (block.t !== 'table' || plainText(block.head[0] ?? []) !== 'ประโยค') continue;
+    for (const row of block.rows) {
+      const sentence = plainText(row[0] ?? []).trim();
+      const meaning = plainText(row[1] ?? []).trim();
+      if (sentence && meaning)
+        out.push({ romaji: sentence, word: sentence, alternatives: [], thai: meaning });
+    }
+  }
+  for (const child of node.children) sentencesBelow(child, out);
+  return out;
+}
+
 function findNode(nodes: ContentNode[], number: string): ContentNode | undefined {
   for (const node of nodes) {
     if (node.number?.replace(/\.$/, '') === number) return node;
@@ -113,6 +148,10 @@ export function buildDeck(file: ContentFile, config: QuizSetConfig): QuizDeck {
   );
   for (const [kind, number] of Object.entries(config.groups) as [QuizKind, string][]) {
     const node = findNode(file.nodes, number);
+    if (kind === 'sentence') {
+      words[kind] = unique(node ? sentencesBelow(node) : []);
+      continue;
+    }
     const keep = KEEP[kind] ?? (() => true);
     words[kind] = unique(
       (node ? entriesBelow(node) : [])
@@ -230,6 +269,120 @@ export function hoursCard(
   };
 }
 
+const FIRST_OF = (text: string): string => capitalize(text);
+
+/** Counter card: order something with the right counter, for example `Ringo o futatsu kudasai.` */
+export function counterCard(
+  item: { word: string; thai: string; counter: 'general' | 'mai' | 'hon' },
+  count: number,
+): CardBody {
+  const reading = counterReading(item.counter, count);
+  return {
+    kind: 'counter',
+    key: `counter:${item.word}:${count}`,
+    prompt: `${item.thai} × ${count}`,
+    promptIsThai: false,
+    note: 'ขอซื้อ',
+    answer: `${FIRST_OF(item.word)} o ${reading} kudasai.`,
+    parts: [
+      { label: item.thai, reading: item.word, irregular: false },
+      { label: 'คำช่วย', reading: 'o', irregular: false },
+      {
+        label: `${count} · ${counterLabel(item.counter)}`,
+        reading,
+        irregular: isCounterIrregular(item.counter, count),
+      },
+      { label: 'ขอ', reading: 'kudasai', irregular: false },
+    ],
+  };
+}
+
+export function monthCard(month: number, config: QuizSetConfig): CardBody {
+  const reading = monthReading(month);
+  return {
+    kind: 'month',
+    key: `month:${month}`,
+    question: config.questions.month ?? '',
+    prompt: MONTH_NAMES[month] ?? '',
+    promptIsThai: true,
+    answer: `${capitalize(reading)} desu.`,
+    parts: [{ label: `เดือน ${month}`, reading, irregular: isMonthIrregular(month) }],
+  };
+}
+
+export function dayCard(day: number, config: QuizSetConfig): CardBody {
+  const reading = dayReading(day);
+  return {
+    kind: 'day',
+    key: `day:${day}`,
+    question: config.questions.day ?? '',
+    prompt: `วันที่ ${day}`,
+    promptIsThai: true,
+    answer: `${capitalize(reading)} desu.`,
+    parts: [{ label: `วันที่ ${day}`, reading, irregular: isDayIrregular(day) }],
+  };
+}
+
+export function weekdayCard(index: number, config: QuizSetConfig): CardBody {
+  const reading = weekdayReading(index);
+  return {
+    kind: 'weekday',
+    key: `weekday:${index}`,
+    question: config.questions.weekday ?? '',
+    prompt: weekdayThai(index),
+    promptIsThai: true,
+    answer: `${capitalize(reading)} desu.`,
+    parts: [
+      { label: weekdayMeaning(index), reading: reading.replace('-yōbi', ''), irregular: false },
+      { label: 'วัน', reading: 'yōbi', irregular: false },
+    ],
+  };
+}
+
+/** A full date as in the slide practice: Thai year (Buddhist era) in, Christian-era reading out. */
+export function dateCard(
+  buddhistYear: number,
+  month: number,
+  day: number,
+  weekday: number = weekdayIndex(buddhistToChristian(buddhistYear), month, day),
+): CardBody {
+  const year = buddhistToChristian(buddhistYear);
+  const yearText = yearReading(year);
+  const monthText = monthReading(month);
+  const dayText = dayReading(day);
+  const weekdayText = weekdayReading(weekday);
+  return {
+    kind: 'date',
+    key: `date:${buddhistYear}-${month}-${day}-${weekday}`,
+    prompt: `${weekdayThai(weekday)}ที่ ${day} ${MONTH_NAMES[month]} ${buddhistYear}`,
+    promptIsThai: true,
+    answer: `${capitalize(yearText)} ${monthText} ${dayText} ${weekdayText} desu.`,
+    parts: [
+      { label: `ค.ศ. ${year}`, reading: yearText, irregular: false },
+      { label: MONTH_NAMES[month] ?? '', reading: monthText, irregular: isMonthIrregular(month) },
+      { label: `วันที่ ${day}`, reading: dayText, irregular: isDayIrregular(day) },
+      { label: weekdayThai(weekday), reading: weekdayText, irregular: false },
+    ],
+  };
+}
+
+/** `ไป · อดีต · ปฏิเสธ` -> `Ikimasendeshita.` */
+export function verbCard(verb: (typeof VERBS)[number], form: VerbForm): CardBody {
+  const info = VERB_FORMS[form];
+  const reading = `${verb.stem}${form}`;
+  return {
+    kind: 'verb',
+    key: `verb:${verb.stem}:${form}`,
+    prompt: `${verb.thai} · ${info.tense} · ${info.polarity}`,
+    promptIsThai: true,
+    answer: `${capitalize(reading)}.`,
+    parts: [
+      { label: verb.thai, reading: verb.stem, irregular: false },
+      { label: `${info.polarity} · ${info.tense}`, reading: form, irregular: false },
+    ],
+  };
+}
+
 function randomMinute(rng: Rng): number {
   const roll = rng();
   if (roll < 0.25) return 0;
@@ -293,6 +446,23 @@ export function generatedCard(kind: QuizKind, config: QuizSetConfig, rng: Rng): 
       const { start, end } = randomHours(rng);
       return hoursCard(start, end, pick(rng, config.hoursSubjects ?? []));
     }
+    case 'counter':
+      return counterCard(pick(rng, config.counters ?? []), between(rng, 1, 10));
+    case 'month':
+      return monthCard(between(rng, 1, 12), config);
+    case 'day':
+      return dayCard(between(rng, 1, 31), config);
+    case 'weekday':
+      return weekdayCard(between(rng, 0, 6), config);
+    case 'date': {
+      // Thai years around today, so the conversion to the Christian era is a real exercise
+      const buddhistYear = between(rng, 2540, 2570);
+      const month = between(rng, 1, 12);
+      const day = between(rng, 1, daysInMonth(buddhistToChristian(buddhistYear), month));
+      return dateCard(buddhistYear, month, day);
+    }
+    case 'verb':
+      return verbCard(pick(rng, VERBS), pick(rng, Object.keys(VERB_FORMS) as VerbForm[]));
     default:
       throw new Error(`${kind} is not a generated kind`);
   }

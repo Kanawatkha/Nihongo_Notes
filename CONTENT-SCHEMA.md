@@ -9,6 +9,7 @@ The two study files were split by page on 13 Oct 2026 (files now in `content/`).
 | Collection | File | Taken from | Page |
 |---|---|---|---|
 | `vocab` | `ch3-4.md` | `ch3-4-vocab.md`, re-grouped by topic on 13 Oct 2026 (parts `1.` words, `2.` time, `3.` numbers and money, `4.` sentences and dialogues; chapters 3 and 4 are merged) | Vocabulary, set "บท 3-4" |
+| `vocab` | `ch5-6.md` | `บทที่ 5 การซื้อของ 2` and `บทที่ 6 การยืนยันตารางงาน` slides (PDF), merged by topic on 17 Oct 2026: parts `1.` words, `2.` counters, `3.` dates, `4.` going, coming, returning, `5.` sentences and dialogues. The slides have no Thai meanings for the picture words; the meanings were taken from the pictures and the Thai notes and confirmed by the user | Vocabulary, set "บท 5-6" |
 | `vocab` | `ch1-2.md` | `ch1-2-vocab.md`, sections 1 to 3 except `2.7` | Vocabulary, set "บท 1-2" |
 | `exam` | `quiz2-ch3-4.md` | `ch3-4-vocab.md`, section 0 and "ฝึกจากตัวอย่างในแนวข้อสอบ" | Exam guide, set "สอบครั้งที่ 2 (บท 3-4)" |
 | `exam` | `quiz1-ch1-2.md` | `ch1-2-vocab.md`, section 0 (self-introduction) and `2.7` | Exam guide, set "สอบครั้งที่ 1 (บท 1-2)" |

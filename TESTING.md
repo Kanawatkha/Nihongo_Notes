@@ -51,6 +51,7 @@ Constructs are tested with small inline Markdown sources in `tests/parse.test.ts
 - Exam page: renders every pattern card and worked example from the fixture; each quiz opens from its own chip.
 - Quiz page (`QuizPage.test.tsx`): empty start, set and kind chips in order, the card turns to the answer and back, the dice deals the next card, "ตอบได้" / "ยังไม่ได้" are counted, `?type=` keeps one kind, unknown `?set=` / `?type=` are ignored.
 - Readings (`tests/readings.test.ts`): every reading table in `src/lib/readings.ts` against the slide tables (hours, minutes, 1-100, hundreds, thousands, ten-thousands, the place-by-place examples), the irregular set equals the bold readings, limits (1-99,999, no noon or midnight).
+- Chapter 5-6 readings (`tests/readings56.test.ts`): counters (with the boxed -hon readings), months, days (with the exceptions), weekdays, years (the two slide examples and 2566 -> 2023), verb forms, the real calendar.
 - Quiz content (`tests/quiz.test.ts`): every question sentence appears in the slides of its set; the cards reproduce every worked answer of both exam guides; decks keep only real words (no `..ji`, `+ เวลา` rows); the dealer shows every word once per round, never the same card twice in a row, brings back "ยังไม่ได้" words, and 3,000 generated cards per kind stay in range.
 - Motion wrappers: with reduced motion mocked, components render final state with no transform.
 - `UpdateHost`: shows the updated toast after an automatic reload, offline-ready toast once.

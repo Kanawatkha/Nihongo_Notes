@@ -37,7 +37,7 @@ web/
 ├─ eslint.config.js  .prettierrc  .prettierignore  .gitignore  .nvmrc
 ├─ .github/workflows/       ci.yml, deploy.yml
 ├─ content/                 SOURCE OF TRUTH (Markdown only)
-│  ├─ vocab/                ch1-2.md, ch3-4.md
+│  ├─ vocab/                ch1-2.md, ch3-4.md, ch5-6.md
 │  └─ exam/                 quiz1-ch1-2.md, quiz2-ch3-4.md
 ├─ scripts/build-content/   run.ts, index.ts, frontmatter.ts, parse.ts, classify.ts, tree.ts, validate.ts, project.ts, report.ts
 ├─ public/                  favicon.svg, PWA icons, robots.txt
@@ -46,14 +46,14 @@ web/
 │  ├─ app/                  App.tsx, layouts/AppLayout.tsx, pwa/ (UpdateHost, registerServiceWorker, readingPosition)
 │  ├─ pages/                VocabPage, ExamPage, NotFoundPage
 │  ├─ features/
-│  │  ├─ vocab/             VocabView, VocabHero, Contents (ContentsRail, ContentsChips), contentsItems, RomajiTicker, tickerWords, useActiveSection, useRailOpen
-│  │  ├─ exam/              ExamHero, ExamView, ScoreSplit, PatternBand, PracticeRows
+│  │  ├─ vocab/             VocabView, Contents (ContentsRail, ContentsChips), contentsItems, RomajiTicker, tickerWords, useActiveSection, useRailOpen
+│  │  ├─ exam/              ExamView, ScoreSplit, PatternBand, PracticeRows
 │  │  └─ quiz/              QuizView, QuizCardView, quizCards (decks, card builders, dealer)
 │  ├─ components/
 │  │  ├─ ui/                Button, ButtonLink, Chip, SetSwitch, MonoLabel, Skeleton, Toast, Icon
 │  │  ├─ content/           BlockRenderer, InlineContent, VocabRows, NumberGrid, PairTable, DataTable, TipCallout, Dialogue
 │  │  ├─ motion/            Reveal, Stagger (wrappers that respect reduced motion)
-│  │  └─ layout/            Navbar, ShareDialog, QrCode, Logo, PageContainer
+│  │  └─ layout/            Navbar, ShareDialog, QrCode, Logo, PageContainer, PageHero
 │  ├─ content/
 │  │  ├─ types.ts           shared with scripts
 │  │  ├─ loaders.ts         lazy loaders for generated JSON
@@ -139,7 +139,7 @@ app    ->  pages, components, config
 
 | Want to add | Do this |
 |---|---|
-| Chapters 5-6 | Add `content/vocab/ch5-6.md` and `content/exam/quiz3-ch5-6.md`, register them in `config/site.ts`. The set switch gains a chip automatically |
+| Exam guide for chapters 5-6 | Add `content/exam/quiz3-ch5-6.md` and register it in `EXAM_FILES` in `config/site.ts`; the exam page gains a chip automatically. The vocabulary (`ch5-6.md`) and the quiz are already there |
 | A new Markdown construct | Extend `parse.ts`/`classify.ts` and `types.ts`, add a block component and tests, document it in `CONTENT-SCHEMA.md` |
-| Quiz for chapters 5-6 | Add an entry to `QUIZ_SETS` in `config/quiz.ts` (kinds, section numbers, question sentences copied from the slides); `tests/quiz.test.ts` checks that every question appears in the slides |
+| Quiz for chapters 5-6 | Add an entry to `QUIZ_SETS` in `config/quiz.ts` (kinds, section numbers, question sentences copied from the slides); `lib/readings56.ts` holds the readings that the chapter 5-6 cards generate (counters, months, days, weekdays, years, verb forms); `tests/readings56.test.ts` checks every one against the tables of `ch5-6.md`; `tests/quiz.test.ts` checks that every question appears in the slides |
 | A design token | Not allowed. `DESIGN-cohere.md` is fixed |

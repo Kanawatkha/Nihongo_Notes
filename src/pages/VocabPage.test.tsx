@@ -51,7 +51,7 @@ describe('VocabPage', () => {
     const chips = within(
       screen.getByRole('group', { name: 'เลือกบทที่ต้องการเรียน' }),
     ).getAllByRole('button');
-    expect(chips.map((chip) => chip.textContent)).toEqual(['บท 1-2', 'บท 3-4']);
+    expect(chips.map((chip) => chip.textContent)).toEqual(['บท 1-2', 'บท 3-4', 'บท 5-6']);
     expect(chips.every((chip) => chip.getAttribute('aria-pressed') === 'false')).toBe(true);
     expect(screen.queryByLabelText('สารบัญ')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
@@ -157,5 +157,16 @@ describe('VocabPage', () => {
     Element.prototype.scrollIntoView = scroll;
     renderPage('/?set=3-4&g=2.2');
     await waitFor(() => expect(scroll).toHaveBeenCalled());
+  });
+
+  it('opens chapters 5-6 with its parts and counts', async () => {
+    renderPage('/?set=5-6');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('คำศัพท์ บท 5-6');
+    expect(await screen.findByText(/71 คำ · 73 รายการ/)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 2, name: 'ลักษณนามและการสั่งของ' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('ni-mai').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('tsuitachi').length).toBeGreaterThan(0);
   });
 });

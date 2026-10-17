@@ -20,12 +20,13 @@ function collectBlocks(nodes: ContentNode[], out: Block[] = []): Block[] {
 }
 
 describe('real content', () => {
-  it('converts all four files without warnings', () => {
+  it('converts all five files without warnings', () => {
     expect(result.files.map((file) => `${file.collection}/${file.key}`).sort()).toEqual([
       'exam/quiz1-ch1-2',
       'exam/quiz2-ch3-4',
       'vocab/ch1-2',
       'vocab/ch3-4',
+      'vocab/ch5-6',
     ]);
     expect(result.warnings).toEqual([]);
   });

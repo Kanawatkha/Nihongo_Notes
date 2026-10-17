@@ -14,7 +14,7 @@ Give one student a fast, beautiful place to memorize JN60101 vocabulary and revi
 
 ## 3. Goals
 
-1. Find any word of chapters 1-4 within two taps or one scroll.
+1. Find any word of chapters 1-6 within two taps or one scroll.
 2. Groups are short and visually separated so each can be memorized in one sitting.
 3. Exam patterns (question -> answer template -> example) are visible at a glance.
 4. Read comfortably on a 360 px phone and on a desktop.
@@ -36,7 +36,7 @@ Two pages, client-side routes (`HashRouter`):
 
 | Page | Route | Source content |
 |---|---|---|
-| คำศัพท์ (Vocabulary) | `#/` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/vocab/ch3-4.md`, `content/vocab/ch1-2.md` |
+| คำศัพท์ (Vocabulary) | `#/` with set switch `?set=1-2`, `?set=3-4` or `?set=5-6` (nothing is open until one is chosen) | `content/vocab/ch1-2.md`, `content/vocab/ch3-4.md`, `content/vocab/ch5-6.md` |
 | แนวสอบ (Exam guide) | `#/exam` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` |
 
 | แบบทดสอบ (Flash-card quiz) | `#/quiz` (`?set=1-2` or `?set=3-4`, nothing is open until then; `?type=time` keeps one question kind) | the vocabulary file of the set, plus `src/config/quiz.ts` |
@@ -58,7 +58,7 @@ Exam facts (date, score split, time per person), the five question patterns with
 A coral button at the right end of the header opens a card with a QR code and the site link (copy button), over a blurred page. Same behavior as the Digital Logic Notes site.
 
 ### F5 Flash-card quiz (แบบทดสอบ)
-Choose a chapter set (บท 1-2, บท 3-4; empty until chosen), optionally one question kind, then practise one card at a time, out loud, with no typing. Kinds follow the exam: บท 3-4 has Thai -> Japanese words, `Koko wa doko desuka?` (places), `Ima nan ji desuka?` (random times, gozen/gogo), the phone number question (random numbers), `Kore wa ikura desuka?` (random prices 100-99,999 yen) and the start-end time question (`Shigoto` / `Kaigi`). บท 1-2 has words, `Kore wa nan desuka?` (things), `Anohito wa dare desuka?` (jobs), `Anohito wa doko kara kimashitaka?` (countries), `Kore wa nan no zasshi desuka?` (languages), `Kochira wa nan desuka?` (places) and the phone number question. The card turns over (3D flip) to show the answer sentence, the spoken chunks with the number each stands for (irregular readings in coral) and a reminder from the exam guide. A dice button deals a new card; after looking at the answer the student marks "ตอบได้" or "ยังไม่ได้" (a word not known yet returns a few cards later). Only words and readings from the slides are used; generated readings are checked against the slide tables by tests.
+Choose a chapter set (บท 1-2, บท 3-4, บท 5-6; empty until chosen), optionally one question kind, then practise one card at a time, out loud, with no typing. Kinds follow the exam: บท 3-4 has Thai -> Japanese words, `Koko wa doko desuka?` (places), `Ima nan ji desuka?` (random times, gozen/gogo), the phone number question (random numbers), `Kore wa ikura desuka?` (random prices 100-99,999 yen) and the start-end time question (`Shigoto` / `Kaigi`). บท 1-2 has words, `Kore wa nan desuka?` (things), `Anohito wa dare desuka?` (jobs), `Anohito wa doko kara kimashitaka?` (countries), `Kore wa nan no zasshi desuka?` (languages), `Kochira wa nan desuka?` (places) and the phone number question. The card turns over (3D flip) to show the answer sentence, the spoken chunks with the number each stands for (irregular readings in coral) and a reminder from the exam guide. A dice button deals a new card; after looking at the answer the student marks "ตอบได้" or "ยังไม่ได้" (a word not known yet returns a few cards later). Only words and readings from the slides are used; generated readings are checked against the slide tables by tests.
 
 ### F4 Motion
 Restrained, meaningful animation: hero text reveal, rows fading up as they enter, sliding active indicator on chips and the contents rail, a slow romaji ticker strip, pattern cards that reveal question then answer. All of it disabled under `prefers-reduced-motion`. Details in `UI-SPEC.md` section 6.
@@ -101,7 +101,7 @@ Name "Nihongo Notes". Original mark (see `UI-SPEC.md` section 8). No Cohere, Ant
 ## 10. Later (not in this version)
 
 - Hide-meaning mode (cover Thai or romaji to self-test). Flash cards are done (F5).
-- Chapters 5-6 for quiz 3.
+- Exam guide for chapters 5-6 (quiz 3): the vocabulary and the flash cards are in; the guide waits for the lecturer's exam format.
 
 ## 11. Risks and open items
 

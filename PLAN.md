@@ -136,6 +136,16 @@ Requested by the user: a third page "แบบทดสอบ" with one random e
 - [x] `pages/QuizPage.tsx`, route `/quiz`, third navbar link (phone: links never wrap), prefetch of the set's vocabulary file
 - [x] Tests: 139 (readings against the slide tables, every worked exam answer reproduced, deck and dealer rules, page behavior). axe: 0 violations on both faces; checked at 1280, 768 and 375 px
 
+## Change after Phase 8 - chapters 5 and 6 (17 Oct 2026)
+
+Requested by the user: the content of chapters 5 and 6 (no exam guide yet) in the vocabulary page and the quiz.
+
+- [x] Read all 117 slides (49 + 68) as images and cross-checked the spelling against the text layer
+- [x] `content/vocab/ch5-6.md`: parts `1.` words by topic (things, countries, colors and sizes, places and travel, time words, phrases), `2.` counters (general, -mai, -hon), `3.` years, months, days, weekdays, time words, `4.` ikimasu / kimasu / kaerimasu and the four forms, `5.` sentences and five dialogues (71 words, 73 readings). Slide slips not copied: `migan` (the exercise says `mikan`), the number 3 written `ni` in the counter tables, `jū nigatsu`
+- [x] Registry: `VOCAB_FILES` gains `ch5-6` (chip "บท 5-6", order 3); no exam file yet
+- [x] Quiz: `lib/readings56.ts` and seven new card kinds (counters, month, day, weekday, full date with Thai-to-Christian year, verb form, sentences from the sentence tables); wide Thai prompts get a smaller size
+- [x] Tests: 16 for the readings against the ch5-6 tables, 9 for the cards, page tests for both pages
+
 ## Working agreements
 
 - One phase at a time. Report after each checklist group, then wait.

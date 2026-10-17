@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHero } from '@/components/layout/PageHero';
 import { LoadError } from '@/components/ui/LoadError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { SetSwitch, type SwitchSet } from '@/components/ui/SetSwitch';
 import { UI_TEXT } from '@/config/site';
 import type { ManifestFile } from '@/content/types';
-import { VocabHero } from '@/features/vocab/VocabHero';
 import { VocabView } from '@/features/vocab/VocabView';
 import { useContentFile, useManifest } from '@/hooks/useContentFile';
 import { usePageTitle } from '@/hooks/usePageTitle';
@@ -35,6 +35,15 @@ function Sections({ file, group, onSelect }: SectionsProps) {
   }
   const targetId = group ? `vocab/${file.key}/${group}` : null;
   return <VocabView file={content.data} targetId={targetId} onSelect={onSelect} />;
+}
+
+/** `64 คำ · 106 รายการ · 15 หัวข้อ · โรมาจิตามสไลด์` */
+function countsLine(file: ManifestFile): string {
+  const sections = file.headings.filter((heading) => heading.level === 3).length;
+  const parts = [`${file.wordCount} คำ`];
+  if (file.readingCount > 0) parts.push(`${file.readingCount} รายการ`);
+  parts.push(`${sections} หัวข้อ`, 'โรมาจิตามสไลด์');
+  return parts.join(' · ');
 }
 
 export function VocabPage() {
@@ -85,15 +94,11 @@ export function VocabPage() {
   return (
     <>
       <PageContainer>
-        <VocabHero
-          chosen={
-            active && {
-              label: active.label ?? active.key,
-              words: active.wordCount,
-              readings: active.readingCount,
-              sections: active.headings.filter((heading) => heading.level === 3).length,
-            }
-          }
+        <PageHero
+          eyebrow={active ? `Vocabulary · ${active.label ?? active.key}` : 'Vocabulary'}
+          title={active ? `คำศัพท์ ${active.label ?? active.key}` : 'คำศัพท์'}
+          subtitle={active ? countsLine(active) : UI_TEXT.chooseVocab}
+          titleKey={active?.key}
         />
         <SetSwitch
           sets={sets}
@@ -101,7 +106,7 @@ export function VocabPage() {
           onChange={changeSet}
           label={UI_TEXT.chooseVocab}
         />
-        {!active && <div className="pb-section" />}
+        {!active && <div className="pt-8 pb-section" />}
       </PageContainer>
       {active && <Sections file={active} group={params.get('g')} onSelect={selectGroup} />}
     </>

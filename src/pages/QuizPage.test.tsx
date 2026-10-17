@@ -40,7 +40,7 @@ describe('QuizPage', () => {
     const chips = within(screen.getByRole('group', { name: 'เลือกบทที่ต้องการฝึก' })).getAllByRole(
       'button',
     );
-    expect(chips.map((chip) => chip.textContent)).toEqual(['บท 1-2', 'บท 3-4']);
+    expect(chips.map((chip) => chip.textContent)).toEqual(['บท 1-2', 'บท 3-4', 'บท 5-6']);
     expect(screen.queryByRole('button', { name: 'สุ่มข้อใหม่' })).not.toBeInTheDocument();
   });
 
@@ -133,5 +133,28 @@ describe('QuizPage', () => {
     await screen.findByRole('button', { name: 'บท 1-2' });
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/^แบบทดสอบ$/);
     expect(screen.queryByRole('button', { name: 'สุ่มข้อใหม่' })).not.toBeInTheDocument();
+  });
+
+  it('offers the kinds of chapters 5-6 and deals a counter card', async () => {
+    renderPage('/quiz?set=5-6');
+    const kinds = within(await screen.findByRole('group', { name: 'เลือกแบบโจทย์' })).getAllByRole(
+      'button',
+    );
+    expect(kinds.map((chip) => chip.textContent)).toEqual([
+      'สุ่มทุกแบบ',
+      'คำศัพท์',
+      'ลักษณนาม',
+      'ราคา',
+      'เดือน',
+      'วันที่',
+      'วันในสัปดาห์',
+      'วัน เดือน ปี',
+      'ไป มา กลับ',
+      'ประโยค',
+    ]);
+    fireEvent.click(screen.getByRole('button', { name: 'ลักษณนาม' }));
+    expect(screen.getByTestId('search')).toHaveTextContent('?set=5-6&type=counter');
+    fireEvent.click(await screen.findByRole('button', { name: /ดูเฉลย/ }));
+    await waitFor(() => expect(visibleFace()).toHaveTextContent(/ o .+ kudasai\./));
   });
 });

@@ -32,8 +32,7 @@ Pages, layout, components, motion and responsive behavior. Visual tokens (colors
 
 | Use | DESIGN role | Phone size |
 |---|---|---|
-| Page hero headline | `hero-display` 96 px | 48 px |
-| Exam hero headline | `product-display` 72 px | 40 px |
+| Page hero headline (all three pages, `PageHero`) | `product-display` 72 px (56 at 768, 34 at 425, 26 below) | 26 px |
 | Part title in band | `section-display` 60 px | 36 px |
 | Section heading (`###`) | `card-heading` 32 px | 26 px |
 | Group heading (`####`) | `feature-heading` 24 px | 20 px |
@@ -41,6 +40,10 @@ Pages, layout, components, motion and responsive behavior. Visual tokens (colors
 | Thai meaning | `body-large` 18 px | 17 px |
 | Paragraphs, list text | `body` 16 px | 16 px |
 | Numbers, counts, Q labels | `mono-label` 14 px uppercase (`body-muted` on light) | 13 px |
+
+### Shared page opening
+
+The three pages use one component, `PageHero` (`components/layout`), so spacing and sizes are identical at every width: vertical padding 32 / 48 / 56 px (phone / tablet / desktop), mono label (the page's own name in English: `Vocabulary`, `Oral exam`, `Flash cards`, plus ` · <set label>` once a set is chosen), headline 16 px below, one muted `body-large` line 16 px below that, then the set chips. Content starts 32 px under the chips on every page. The course code is not shown on any page.
 
 ## 3. App shell
 
@@ -88,8 +91,8 @@ There is no announcement bar and no footer: the page simply ends after its conte
 ### 4.1 Desktop wireframe (>= 1024)
 
 ```
-                 JN60101 · ภาษาญี่ปุ่นเพื่อการสื่อสาร 1          (mono label, centered)
-                        คำศัพท์ บท 3-4                         (hero-display, word reveal)
+                 Vocabulary · บท 3-4                            (mono label, centered)
+                        คำศัพท์ บท 3-4                         (product-display, word reveal)
                      186 คำ · 24 กลุ่ม · โรมาจิตามสไลด์          (body-large, muted)
 
                   ( บท 3-4 )   ( บท 1-2 )                       (blog-filter-chip x2)
@@ -125,7 +128,7 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 
 | Block | Look |
 |---|---|
-| Hero | Centered. Mono label, `hero-display` headline built from the set label, a muted line with counts from the manifest. Before a set is chosen the headline is just "คำศัพท์" and the muted line is the prompt "เลือกบทที่ต้องการเรียน". Generous space below (80 px) per DESIGN |
+| Hero | Centered. Mono label, `product-display` headline built from the set label, a muted line with counts from the manifest. Before a set is chosen the headline is just "คำศัพท์" and the muted line is the prompt "เลือกบทที่ต้องการเรียน". Generous space below (80 px) per DESIGN |
 | Set switch | Two `blog-filter-chip`s. Active: coral fill, ink text. Inactive: coral outline, pale fill. Chips are in `order` (บท 1-2, then บท 3-4). None is pressed at first and nothing is rendered below them until one is chosen (an unknown `?set=` counts as none). Updates `?set=` |
 | Romaji ticker | Single line of romaji from the current set (first entry of each group), `caption` size, `muted`, separated by middle dots, faded edges (mask). Decorative: `aria-hidden` |
 | Contents rail | Sticky left column 240 px (desktop only). Lists `##` parts and `###` sections. A 2 px ink bar marks the section in view and slides between items; the list scrolls inside the rail to keep that item visible while the page scrolls. Clicking scrolls smoothly and updates `?g=`. A toggle button (panel icon, `aria-expanded`) at the top-left closes the rail: the list fades and slides out, the grid column shrinks to the 44 px toggle (520 ms, ease-out) and the content column, which has no maximum width, grows into the space. Opening reverses it, with the list rows staggering in. The choice is kept in `localStorage` |
@@ -142,7 +145,7 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 
 ### 4.3 Phone (< 768)
 
-- Hero shrinks (48 px headline), chips full width in a row.
+- Hero shrinks (26 px headline), chips full width in a row.
 - Contents rail becomes a **sticky chip row** under the navbar (horizontal scroll, active chip filled), listing sections of the current set.
 - Word rows stack: romaji on top (20 px), Thai meaning below (17 px), 16 px gutters, rows keep the rules.
 - Number tiles: 3 per row at 360 px, 4 at 430 px and up.
@@ -201,7 +204,7 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 
 ### 5.3 Phone
 
-- Hero 40 px. Score cards stack.
+- Score cards stack.
 - Pattern band full bleed, cards one per row, padding 28.
 - Worked examples stack question / prompt / answer.
 
@@ -272,7 +275,7 @@ Desktop, tablet and phone are all first-class targets. The layout is designed mo
 |---|---|---|---|
 | Navbar | 56 px, mark + two text tabs | 64 px, three zones | 64 px, three zones |
 | Page gutters | 16 px | 32 px | centered, max 1200 px (prose column 880 px) |
-| Hero headline | 40-48 px | 64 px | 96 px (vocab) / 72 px (exam) |
+| Hero headline | 26-34 px | 56 px | 72 px (all pages) |
 | Set chips | full-width row, two equal chips | centered, auto width | centered, auto width |
 | Navigation inside a page | sticky chip row under the navbar (horizontal scroll, active chip filled, scrolls itself into view) | same sticky chip row | sticky contents rail (240 px, can be closed) |
 | Word rows | stacked: romaji (20 px) above meaning (17 px); one column | two columns 40/60 | two columns 40/60 |

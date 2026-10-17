@@ -1,7 +1,6 @@
 /** Single place for site-wide constants. vite.config.ts reads REPO_NAME too. */
 export const REPO_NAME = 'Nihongo_Notes';
 export const SITE_NAME = 'Nihongo Notes';
-export const COURSE_CODE = 'JN60101';
 
 export type NavItem = {
   to: string;
@@ -20,7 +19,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
  * names without extension under content/<collection>/. A test checks that this list matches the
  * files on disk and the `order` in their front matter.
  */
-export const VOCAB_FILES = ['ch1-2', 'ch3-4'] as const;
+export const VOCAB_FILES = ['ch1-2', 'ch3-4', 'ch5-6'] as const;
 export const EXAM_FILES = ['quiz1-ch1-2', 'quiz2-ch3-4'] as const;
 
 /**

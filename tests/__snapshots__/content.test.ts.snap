@@ -18,5 +18,9 @@ exports[`real content > keeps word and reading counts stable (review changes, do
     "readings": 106,
     "words": 64,
   },
+  "vocab/ch5-6": {
+    "readings": 73,
+    "words": 71,
+  },
 }
 `;
