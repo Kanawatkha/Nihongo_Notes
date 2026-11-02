@@ -2,82 +2,90 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { QUIZ_KINDS, type QuizKind, type QuizSetConfig } from '@/config/quiz';
+import { QUIZ_KINDS, type QuizKind, type QuizSectionId, type QuizSetConfig } from '@/config/quiz';
 import { UI_TEXT } from '@/config/site';
 import type { ContentFile } from '@/content/types';
 import { cn } from '@/lib/cn';
 import { QuizCardView } from './QuizCardView';
-import { buildDeck, createDealer, type Rng } from './quizCards';
+import { QuizOptions } from './QuizOptions';
+import { buildDeck, createDealer, type QuizFilter, type Rng } from './quizCards';
+import { loadSettings, saveSettings, type QuizSettings } from './quizSettings';
 
 type QuizViewProps = {
-  file: ContentFile;
+  /** The vocabulary files of `config.files`. */
+  files: ContentFile[];
   config: QuizSetConfig;
-  /** Kind from `?type=`, or null for every kind. */
-  kind: QuizKind | null;
-  onKindChange: (kind: QuizKind | null) => void;
-  /** Random source; tests pass a seeded one. */
+  /** Part and pattern from `?part=` and `?type=`, already checked against the set. */
+  filter: QuizFilter;
+  onFilterChange: (filter: QuizFilter) => void;
+  /** Random sources; tests pass seeded ones. */
   rng?: Rng;
+  now?: () => Date;
 };
 
-type KindChipsProps = {
-  kinds: QuizKind[];
-  active: QuizKind | null;
-  onChange: (kind: QuizKind | null) => void;
+type Option<T> = { value: T; label: string };
+
+type ChipRowProps<T extends string> = {
+  label: string;
+  options: Option<T | null>[];
+  active: T | null;
+  onChange: (value: T | null) => void;
 };
 
-/** One row of small chips: every kind, or one kind of question. */
-function KindChips({ kinds, active, onChange }: KindChipsProps) {
-  const options: { kind: QuizKind | null; label: string }[] = [
-    { kind: null, label: UI_TEXT.allKinds },
-    ...kinds.map((kind) => ({ kind, label: QUIZ_KINDS[kind].label })),
-  ];
+/** One row of small chips; the first one (value null) means "all of it". */
+function ChipRow<T extends string>({ label, options, active, onChange }: ChipRowProps<T>) {
   return (
-    <div
-      role="group"
-      aria-label={UI_TEXT.quizKinds}
-      className="flex flex-wrap justify-center gap-2"
-    >
-      {options.map((option) => {
-        const pressed = option.kind === active;
-        return (
-          <button
-            key={option.kind ?? 'all'}
-            type="button"
-            aria-pressed={pressed}
-            onClick={() => onChange(option.kind)}
-            className={cn(
-              'type-caption min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors duration-200',
-              pressed
-                ? 'border-primary bg-primary text-on-primary'
-                : 'border-hairline bg-canvas text-ink active:bg-soft-stone',
-            )}
-          >
-            {option.label}
-          </button>
-        );
-      })}
+    <div role="group" aria-label={label} className="flex flex-wrap justify-center gap-2">
+      {options.map((option) => (
+        <button
+          key={option.value ?? 'all'}
+          type="button"
+          aria-pressed={option.value === active}
+          onClick={() => onChange(option.value)}
+          className={cn(
+            'type-caption min-h-11 rounded-xl border px-4 whitespace-nowrap transition-colors duration-200',
+            option.value === active
+              ? 'border-primary bg-primary text-on-primary'
+              : 'border-hairline bg-canvas text-ink active:bg-soft-stone',
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   );
 }
 
 /**
- * The quiz of one chapter set: kind chips, the flash card, and the controls. The card turns to
- * show the answer; the dice deals a new card; after looking at the answer the student marks it
- * as known or not yet (a word not known yet comes back a few cards later).
+ * The quiz of one set: chips for the parts of the exam and for the question patterns of a part,
+ * the flash card, and the controls. The card turns to show the answer; the dice deals a new card;
+ * after looking at the answer the student marks it as known or not yet (a word not known yet
+ * comes back a few cards later).
  */
-export function QuizView({ file, config, kind, onKindChange, rng }: QuizViewProps) {
-  const deck = useMemo(() => buildDeck(file, config), [file, config]);
-  const [dealer] = useState(() => createDealer(deck, rng));
-  const activeKind = kind && deck.kinds.includes(kind) ? kind : null;
-  const [card, setCard] = useState(() => dealer.deal(activeKind));
+export function QuizView({ files, config, filter, onFilterChange, rng, now }: QuizViewProps) {
+  const deck = useMemo(() => buildDeck(files, config), [files, config]);
+  const [dealer] = useState(() => createDealer(deck, rng, now));
+  const [settings, setSettings] = useState(loadSettings);
+  const [card, setCard] = useState(() => dealer.deal(filter, settings));
   const [number, setNumber] = useState(1);
   const [flipped, setFlipped] = useState(false);
   const [rolls, setRolls] = useState(0);
   const [tally, setTally] = useState({ known: 0, again: 0 });
 
-  const dealNext = (nextKind: QuizKind | null) => {
+  const sections = config.sections
+    .map((section) => ({
+      section,
+      kinds: section.kinds.filter((kind) => deck.kinds.includes(kind)),
+    }))
+    .filter((entry) => entry.kinds.length > 0);
+  const single = sections.length === 1;
+  // The pattern row belongs to the chosen part, or to the only part of a set that has one
+  const shown = single ? sections[0] : sections.find((entry) => entry.section.id === filter.part);
+  const kindLabel = (kind: QuizKind) => config.labels?.[kind] ?? QUIZ_KINDS[kind].label;
+
+  const dealNext = (next: QuizFilter, withSettings: QuizSettings = settings) => {
     setFlipped(false);
-    setCard(dealer.deal(nextKind));
+    setCard(dealer.deal(next, withSettings));
     setNumber((value) => value + 1);
     setRolls((value) => value + 1);
   };
@@ -87,17 +95,51 @@ export function QuizView({ file, config, kind, onKindChange, rng }: QuizViewProp
     setTally((value) =>
       known ? { ...value, known: value.known + 1 } : { ...value, again: value.again + 1 },
     );
-    dealNext(activeKind);
+    dealNext(filter);
   };
 
-  const changeKind = (next: QuizKind | null) => {
-    onKindChange(next);
+  const change = (next: QuizFilter) => {
+    onFilterChange(next);
     dealNext(next);
+  };
+
+  // Settings are remembered on this device; a new card shows the change at once
+  const changeSettings = (next: QuizSettings) => {
+    setSettings(next);
+    saveSettings(next);
+    dealNext(filter, next);
   };
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
-      <KindChips kinds={deck.kinds} active={activeKind} onChange={changeKind} />
+      <div className="space-y-3">
+        {!single && (
+          <ChipRow<QuizSectionId>
+            label={UI_TEXT.quizParts}
+            active={filter.part}
+            onChange={(part) => change({ part, kind: null })}
+            options={[
+              { value: null, label: UI_TEXT.allParts },
+              ...sections.map(({ section }) => ({
+                value: section.id,
+                label: `${section.label} (${section.points} ${UI_TEXT.points})`,
+              })),
+            ]}
+          />
+        )}
+        {shown && shown.kinds.length > 1 && (
+          <ChipRow<QuizKind>
+            label={UI_TEXT.quizKinds}
+            active={filter.kind}
+            onChange={(kind) => change({ part: single ? null : shown.section.id, kind })}
+            options={[
+              { value: null, label: UI_TEXT.allKinds },
+              ...shown.kinds.map((kind) => ({ value: kind, label: kindLabel(kind) })),
+            ]}
+          />
+        )}
+      </div>
+      <QuizOptions kind={filter.kind} settings={settings} onChange={changeSettings} />
 
       <p className="type-caption mt-6 text-center text-body-muted">
         {UI_TEXT.known} <span className="font-medium text-ink tabular-nums">{tally.known}</span>
@@ -140,7 +182,7 @@ export function QuizView({ file, config, kind, onKindChange, rng }: QuizViewProp
         </Button>
         <button
           type="button"
-          onClick={() => dealNext(activeKind)}
+          onClick={() => dealNext(filter)}
           className="type-button inline-flex min-h-12 min-w-36 items-center justify-center gap-2 rounded-pill bg-coral px-6 py-3 text-ink transition-transform active:scale-95"
         >
           <motion.span

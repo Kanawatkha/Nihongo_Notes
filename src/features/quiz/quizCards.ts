@@ -1,4 +1,10 @@
-import type { QuizKind, QuizSetConfig } from '@/config/quiz';
+import {
+  setKinds,
+  type QuizKind,
+  type QuizSectionId,
+  type QuizSetConfig,
+  type ThaiWord,
+} from '@/config/quiz';
 import type { ContentFile, ContentNode, VocabEntry } from '@/content/types';
 import {
   capitalize,
@@ -32,6 +38,7 @@ import {
   type VerbForm,
 } from '@/lib/readings56';
 import { plainText } from '@/lib/text';
+import { DEFAULT_SETTINGS, type QuizSettings } from './quizSettings';
 
 /** Returns a number in [0, 1), like Math.random. Tests pass a seeded one. */
 export type Rng = () => number;
@@ -134,20 +141,38 @@ function unique(words: QuizWord[]): QuizWord[] {
   });
 }
 
-/** Collects the words of every word-based kind of a set. Generated kinds need no words. */
-export function buildDeck(file: ContentFile, config: QuizSetConfig): QuizDeck {
+/** `ch1-2:1.4` -> the file and section; a bare `1.4` is a section of the set's first file. */
+function groupTarget(config: QuizSetConfig, group: string): { file: string; section: string } {
+  const [head = '', tail] = group.split(':');
+  return tail === undefined
+    ? { file: config.files[0] ?? '', section: head }
+    : { file: head, section: tail };
+}
+
+/**
+ * Collects the words of every word-based kind of a set from its vocabulary files. Generated kinds
+ * need no words. `files` must hold every file named in `config.files`.
+ */
+export function buildDeck(files: ContentFile[], config: QuizSetConfig): QuizDeck {
+  const fileOf = (key: string): ContentFile | undefined => files.find((file) => file.key === key);
+  const all = setKinds(config);
   const words: QuizDeck['words'] = {};
-  words.vocab = unique(
-    config.vocabParts
-      .flatMap((part) => {
-        const node = findNode(file.nodes, part);
-        return node ? entriesBelow(node) : [];
-      })
-      .filter((entry) => !PLACEHOLDER.test(plainText(entry.romaji)))
-      .map(toQuizWord),
-  );
-  for (const [kind, number] of Object.entries(config.groups) as [QuizKind, string][]) {
-    const node = findNode(file.nodes, number);
+
+  const primary = fileOf(config.files[0] ?? '');
+  if (all.includes('vocab') && primary) {
+    words.vocab = unique(
+      (config.vocabParts ?? [])
+        .flatMap((part) => {
+          const node = findNode(primary.nodes, part);
+          return node ? entriesBelow(node) : [];
+        })
+        .filter((entry) => !PLACEHOLDER.test(plainText(entry.romaji)))
+        .map(toQuizWord),
+    );
+  }
+  for (const [kind, group] of Object.entries(config.groups) as [QuizKind, string][]) {
+    const target = groupTarget(config, group);
+    const node = findNode(fileOf(target.file)?.nodes ?? [], target.section);
     if (kind === 'sentence') {
       words[kind] = unique(node ? sentencesBelow(node) : []);
       continue;
@@ -160,8 +185,17 @@ export function buildDeck(file: ContentFile, config: QuizSetConfig): QuizDeck {
         .filter(keep),
     );
   }
+  if (all.includes('intro')) {
+    words.intro = (config.introLines ?? []).map((line, index) => ({
+      romaji: line.romaji,
+      word: line.romaji,
+      alternatives: [],
+      thai: line.thai,
+      note: `บรรทัดที่ ${index + 1} ของบทพูดแนะนำตัว`,
+    }));
+  }
   // A word kind with no words (a section renamed in the Markdown) is left out rather than broken
-  const kinds = config.kinds.filter((kind) => !(kind in words) || (words[kind]?.length ?? 0) > 0);
+  const kinds = all.filter((kind) => !(kind in words) || (words[kind]?.length ?? 0) > 0);
   return { kinds, words, config };
 }
 
@@ -269,22 +303,24 @@ export function hoursCard(
   };
 }
 
-const FIRST_OF = (text: string): string => capitalize(text);
-
-/** Counter card: order something with the right counter, for example `Ringo o futatsu kudasai.` */
+/** Exam pattern `Irasshaimase!`: order what is in the picture, for example `Sono ringo o muttsu kudasai.` */
 export function counterCard(
   item: { word: string; thai: string; counter: 'general' | 'mai' | 'hon' },
   count: number,
+  config?: QuizSetConfig,
 ): CardBody {
   const reading = counterReading(item.counter, count);
+  const question = config?.questions.counter;
   return {
     kind: 'counter',
     key: `counter:${item.word}:${count}`,
+    ...(question ? { question } : {}),
     prompt: `${item.thai} × ${count}`,
-    promptIsThai: false,
+    promptIsThai: true,
     note: 'ขอซื้อ',
-    answer: `${FIRST_OF(item.word)} o ${reading} kudasai.`,
+    answer: `Sono ${item.word} o ${reading} kudasai.`,
     parts: [
+      { label: 'นั้น', reading: 'Sono', irregular: false },
       { label: item.thai, reading: item.word, irregular: false },
       { label: 'คำช่วย', reading: 'o', irregular: false },
       {
@@ -294,6 +330,101 @@ export function counterCard(
       },
       { label: 'ขอ', reading: 'kudasai', irregular: false },
     ],
+  };
+}
+
+/** Exam pattern `Kore wa doko no tokei desuka?`: the item of the picture and the flag of a country. */
+export function originCard(item: ThaiWord, country: ThaiWord): CardBody {
+  return {
+    kind: 'origin',
+    key: `origin:${item.word}:${country.word}`,
+    question: `Kore wa doko no ${item.word} desuka?`,
+    prompt: `${item.thai} · ${country.thai}`,
+    promptIsThai: true,
+    answer: `Kore wa ${country.word} no ${item.word} desu.`,
+    parts: [
+      { label: `ประเทศ${country.thai}`, reading: country.word, irregular: false },
+      { label: 'ของ', reading: 'no', irregular: false },
+      { label: item.thai, reading: item.word, irregular: false },
+    ],
+  };
+}
+
+/** Exam pattern `Kore wa nan desuka?` of exam 3: the color or size of the item in the picture. */
+export function adjectiveCard(
+  noun: ThaiWord,
+  adjective: ThaiWord,
+  config: QuizSetConfig,
+): CardBody {
+  return {
+    kind: 'adjective',
+    key: `adjective:${adjective.word}:${noun.word}`,
+    question: config.questions.adjective ?? '',
+    prompt: `${noun.thai} · ${adjective.thai}`,
+    promptIsThai: true,
+    answer: `Kore wa ${adjective.word} ${noun.word} desu.`,
+    parts: [
+      { label: adjective.thai, reading: adjective.word, irregular: false },
+      { label: noun.thai, reading: noun.word, irregular: false },
+    ],
+  };
+}
+
+type AskKind = 'dateAsk' | 'birthday' | 'today';
+
+function monthDay(kind: AskKind, month: number, day: number, config: QuizSetConfig) {
+  const monthText = monthReading(month);
+  const dayText = dayReading(day);
+  return {
+    kind,
+    question: config.questions[kind] ?? '',
+    answer: `${capitalize(monthText)} ${dayText} desu.`,
+    parts: [
+      { label: MONTH_NAMES[month] ?? '', reading: monthText, irregular: isMonthIrregular(month) },
+      { label: `วันที่ ${day}`, reading: dayText, irregular: isDayIrregular(day) },
+    ],
+  };
+}
+
+/** Exam pattern `Kore wa nan gatsu nan nichi desuka?`: a date in the picture, month before day. */
+export function dateAskCard(month: number, day: number, config: QuizSetConfig): CardBody {
+  return {
+    ...monthDay('dateAsk', month, day, config),
+    key: `dateAsk:${month}-${day}`,
+    prompt: `${day} ${MONTH_NAMES[month]}`,
+    promptIsThai: true,
+  };
+}
+
+/** Exam pattern `O tanjōbi wa ...`: the answer is the own birthday of the student; the card shows the form. */
+export function birthdayCard(
+  month: number,
+  day: number,
+  config: QuizSetConfig,
+  own = false,
+): CardBody {
+  return {
+    ...monthDay('birthday', month, day, config),
+    key: `birthday:${month}-${day}`,
+    prompt: 'วันเกิดของคุณ',
+    promptIsThai: true,
+    // the saved birthday of the student, or a sample date until one is set
+    note: own
+      ? `${day} ${MONTH_NAMES[month]}`
+      : `ตัวอย่าง: ถ้าเกิดวันที่ ${day} ${MONTH_NAMES[month]} (ตั้งวันเกิดของคุณได้ที่แบบ "วันเกิด")`,
+  };
+}
+
+/** Exam pattern `Kyō wa nan gatsu nan nichi desuka?`: the date today on the device of the student. */
+export function todayCard(date: Date, config: QuizSetConfig): CardBody {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return {
+    ...monthDay('today', month, day, config),
+    key: `today:${date.getFullYear()}-${month}-${day}`,
+    prompt: 'วันนี้',
+    promptIsThai: true,
+    note: `${day} ${MONTH_NAMES[month]}`,
   };
 }
 
@@ -434,7 +565,13 @@ function randomHours(rng: Rng): { start: Clock; end: Clock } {
 }
 
 /** A new random card of a generated kind. */
-export function generatedCard(kind: QuizKind, config: QuizSetConfig, rng: Rng): CardBody {
+export function generatedCard(
+  kind: QuizKind,
+  config: QuizSetConfig,
+  rng: Rng,
+  now: () => Date = () => new Date(),
+  settings: QuizSettings = DEFAULT_SETTINGS,
+): CardBody {
   switch (kind) {
     case 'time':
       return timeCard(randomHour24(rng), randomMinute(rng), config);
@@ -447,7 +584,38 @@ export function generatedCard(kind: QuizKind, config: QuizSetConfig, rng: Rng): 
       return hoursCard(start, end, pick(rng, config.hoursSubjects ?? []));
     }
     case 'counter':
-      return counterCard(pick(rng, config.counters ?? []), between(rng, 1, 10));
+      return counterCard(pick(rng, config.counters ?? []), between(rng, 1, 10), config);
+    case 'origin':
+      return originCard(
+        pick(rng, config.origins?.items ?? []),
+        pick(rng, config.origins?.countries ?? []),
+      );
+    case 'adjective':
+      return adjectiveCard(
+        pick(rng, config.adjectives?.nouns ?? []),
+        pick(rng, config.adjectives?.adjectives ?? []),
+        config,
+      );
+    case 'dateAsk':
+    case 'birthday': {
+      if (kind === 'birthday' && settings.birthday) {
+        return birthdayCard(settings.birthday.month, settings.birthday.day, config, true);
+      }
+      const month = between(rng, 1, 12);
+      const day = between(rng, 1, daysInMonth(2024, month));
+      return kind === 'dateAsk'
+        ? dateAskCard(month, day, config)
+        : birthdayCard(month, day, config);
+    }
+    case 'today': {
+      if (!settings.randomToday) return todayCard(now(), config);
+      // a random day of any month; the year does not matter for the answer
+      const month = between(rng, 1, 12);
+      return todayCard(
+        new Date(2024, month - 1, between(rng, 1, daysInMonth(2024, month))),
+        config,
+      );
+    }
     case 'month':
       return monthCard(between(rng, 1, 12), config);
     case 'day':
@@ -468,18 +636,27 @@ export function generatedCard(kind: QuizKind, config: QuizSetConfig, rng: Rng): 
   }
 }
 
+/** What to deal: a part of the exam (null for every part) and one pattern of it (null for any). */
+export type QuizFilter = { part: QuizSectionId | null; kind: QuizKind | null };
+
 export type Dealer = {
-  /** Next card of `kind`, or of a random kind when `kind` is null. */
-  deal: (kind: QuizKind | null) => QuizCard;
+  /** Next card for the filter. */
+  deal: (filter: QuizFilter, settings?: QuizSettings) => QuizCard;
   /** Puts a word the student did not know back a few cards ahead. */
   again: (card: QuizCard) => void;
 };
 
 /**
  * Deals cards. Words come from a shuffled bag per kind, so every word is shown once before any
- * repeats; generated kinds make a new number each time. The same card never comes twice in a row.
+ * repeats; generated kinds make a new card each time. The same card never comes twice in a row.
+ * Without a filter the mix follows the exam: each part by its points, each pattern by how many
+ * questions it has.
  */
-export function createDealer(deck: QuizDeck, rng: Rng = Math.random): Dealer {
+export function createDealer(
+  deck: QuizDeck,
+  rng: Rng = Math.random,
+  now: () => Date = () => new Date(),
+): Dealer {
   const bags = new Map<QuizKind, QuizWord[]>();
   let count = 0;
   let lastKey = '';
@@ -494,15 +671,31 @@ export function createDealer(deck: QuizDeck, rng: Rng = Math.random): Dealer {
     return bag;
   };
 
-  const chooseKind = (): QuizKind => {
-    // Like the exam: about half the cards are plain words, the rest are the question patterns
-    const others = deck.kinds.filter((kind) => kind !== 'vocab');
-    if (deck.kinds.includes('vocab') && (others.length === 0 || rng() < 0.4)) return 'vocab';
-    return pick(rng, others);
+  const weighted = <T>(items: T[], weight: (item: T) => number): T => {
+    const total = items.reduce((sum, item) => sum + weight(item), 0);
+    let roll = rng() * total;
+    for (const item of items) {
+      roll -= weight(item);
+      if (roll < 0) return item;
+    }
+    return items[items.length - 1] as T;
   };
 
-  const draw = (kind: QuizKind): CardBody => {
-    if (!(kind in deck.words)) return generatedCard(kind, deck.config, rng);
+  const chooseKind = (filter: QuizFilter): QuizKind => {
+    if (filter.kind && deck.kinds.includes(filter.kind)) return filter.kind;
+    const sections = deck.config.sections
+      .filter((section) => !filter.part || section.id === filter.part)
+      .map((section) => ({
+        section,
+        kinds: section.kinds.filter((kind) => deck.kinds.includes(kind)),
+      }))
+      .filter((entry) => entry.kinds.length > 0);
+    const chosen = weighted(sections, (entry) => entry.section.points);
+    return weighted(chosen.kinds, (kind) => chosen.section.kindWeights?.[kind] ?? 1);
+  };
+
+  const draw = (kind: QuizKind, settings: QuizSettings): CardBody => {
+    if (!(kind in deck.words)) return generatedCard(kind, deck.config, rng, now, settings);
     let bag = bags.get(kind) ?? refill(kind);
     if (bag.length === 0) bag = refill(kind);
     const word = bag.pop();
@@ -511,11 +704,10 @@ export function createDealer(deck: QuizDeck, rng: Rng = Math.random): Dealer {
   };
 
   return {
-    deal: (kind) => {
-      const chosen = kind && deck.kinds.includes(kind) ? kind : null;
-      let body = draw(chosen ?? chooseKind());
+    deal: (filter, settings = DEFAULT_SETTINGS) => {
+      let body = draw(chooseKind(filter), settings);
       for (let tries = 0; body.key === lastKey && tries < 5; tries++) {
-        body = draw(chosen ?? body.kind);
+        body = draw(body.kind, settings);
       }
       lastKey = body.key;
       count += 1;

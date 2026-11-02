@@ -2,11 +2,19 @@
 
 exports[`real content > keeps word and reading counts stable (review changes, do not accept blindly) 1`] = `
 {
+  "exam/final-ch1-6": {
+    "readings": 0,
+    "words": 0,
+  },
   "exam/quiz1-ch1-2": {
     "readings": 0,
     "words": 0,
   },
   "exam/quiz2-ch3-4": {
+    "readings": 0,
+    "words": 0,
+  },
+  "exam/quiz3-ch5-6": {
     "readings": 0,
     "words": 0,
   },

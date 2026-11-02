@@ -4,103 +4,85 @@ import { PageHero } from '@/components/layout/PageHero';
 import { LoadError } from '@/components/ui/LoadError';
 import { SetSwitch, type SwitchSet } from '@/components/ui/SetSwitch';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { QUIZ_KINDS, QUIZ_SETS, type QuizKind } from '@/config/quiz';
+import { QUIZ_SETS, type QuizSectionId, type QuizSetConfig } from '@/config/quiz';
 import { UI_TEXT } from '@/config/site';
-import type { ManifestFile } from '@/content/types';
 import { QuizView } from '@/features/quiz/QuizView';
-import { useContentFile, useManifest } from '@/hooks/useContentFile';
+import type { QuizFilter } from '@/features/quiz/quizCards';
+import { useContentFiles } from '@/hooks/useContentFile';
 import { usePageTitle } from '@/hooks/usePageTitle';
-import { setParamOf } from '@/lib/setParam';
 
-const isKind = (value: string | null): value is QuizKind =>
-  value !== null && Object.hasOwn(QUIZ_KINDS, value);
+const SETS = Object.values(QUIZ_SETS);
+
+/** Reads `?part=` and `?type=` and drops what the set does not have: a part, then a pattern of it. */
+function filterOf(config: QuizSetConfig, params: URLSearchParams): QuizFilter {
+  const single = config.sections.length === 1;
+  const requestedPart = params.get('part');
+  const requestedKind = params.get('type');
+  const section = single
+    ? config.sections[0]
+    : config.sections.find((item) => item.id === requestedPart);
+  const kind = section?.kinds.find((item) => item === requestedKind) ?? null;
+  return { part: single ? null : ((section?.id as QuizSectionId | undefined) ?? null), kind };
+}
 
 type QuizSetProps = {
-  file: ManifestFile;
-  kind: QuizKind | null;
-  onKindChange: (kind: QuizKind | null) => void;
+  config: QuizSetConfig;
+  filter: QuizFilter;
+  onFilterChange: (filter: QuizFilter) => void;
 };
 
-function QuizSet({ file, kind, onKindChange }: QuizSetProps) {
-  const content = useContentFile('vocab', file.key);
-  const config = QUIZ_SETS[file.key];
-  if (content.status === 'loading' || !config) return <Skeleton />;
+function QuizSet({ config, filter, onFilterChange }: QuizSetProps) {
+  const content = useContentFiles('vocab', config.files);
+  if (content.status === 'loading') return <Skeleton />;
   if (content.status === 'error') return <LoadError onRetry={content.retry} />;
   return (
     <QuizView
-      key={file.key}
-      file={content.data}
+      key={config.param}
+      files={content.data}
       config={config}
-      kind={kind}
-      onKindChange={onKindChange}
+      filter={filter}
+      onFilterChange={onFilterChange}
     />
   );
 }
 
-/** Flash cards in the shape of the oral exam, one chapter set at a time. Empty until a set is chosen. */
+/**
+ * Flash cards in the shape of the oral exams, one set at a time (exam 1, 2, 3 and the final).
+ * Empty until a set is chosen.
+ */
 export function QuizPage() {
   const [params, setParams] = useSearchParams();
-  const manifest = useManifest();
+  const active = SETS.find((set) => set.param === params.get('set')) ?? null;
+  const filter = active ? filterOf(active, params) : { part: null, kind: null };
 
-  // The chapter sets of the vocabulary page that have a quiz, in chip order
-  const files =
-    manifest.status === 'ready'
-      ? manifest.data.files
-          .filter((file) => file.collection === 'vocab' && file.key in QUIZ_SETS)
-          .sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
-      : [];
-  const active = files.find((file) => setParamOf(file.key) === params.get('set')) ?? null;
-  const type = params.get('type');
-  const kind = isKind(type) ? type : null;
+  usePageTitle(active ? `แบบทดสอบ ${active.label}` : 'แบบทดสอบ');
 
-  usePageTitle(active?.label ? `แบบทดสอบ ${active.label}` : 'แบบทดสอบ');
+  const sets: SwitchSet[] = SETS.map((set) => ({ param: set.param, label: set.label }));
 
-  if (manifest.status === 'error') {
-    return (
-      <PageContainer>
-        <LoadError onRetry={manifest.retry} />
-      </PageContainer>
-    );
-  }
-
-  if (manifest.status === 'loading') {
-    return (
-      <PageContainer>
-        <div className="py-section">
-          <Skeleton />
-        </div>
-      </PageContainer>
-    );
-  }
-
-  const sets: SwitchSet[] = files.map((file) => ({
-    param: setParamOf(file.key),
-    label: file.label ?? file.key,
-  }));
-
-  const changeKind = (next: QuizKind | null) => {
+  const changeFilter = (next: QuizFilter) => {
     if (!active) return;
-    const query: Record<string, string> = { set: setParamOf(active.key) };
-    if (next) query.type = next;
+    const query: Record<string, string> = { set: active.param };
+    if (next.part) query.part = next.part;
+    if (next.kind) query.type = next.kind;
     setParams(query, { replace: true });
   };
 
   return (
     <PageContainer>
       <PageHero
-        eyebrow={active ? `Flash cards · ${active.label ?? active.key}` : 'Flash cards'}
-        title={active ? `แบบทดสอบ ${active.label ?? active.key}` : 'แบบทดสอบ'}
+        eyebrow={active ? `Flash cards · ${active.label}` : 'Flash cards'}
+        title={active ? `แบบทดสอบ ${active.label}` : 'แบบทดสอบ'}
         subtitle={active ? UI_TEXT.quizIntro : UI_TEXT.chooseQuiz}
-        titleKey={active?.key}
+        titleKey={active?.param}
       />
       <SetSwitch
         sets={sets}
-        activeParam={active ? setParamOf(active.key) : null}
+        activeParam={active?.param ?? null}
         onChange={(param) => setParams({ set: param })}
         label={UI_TEXT.chooseQuiz}
       />
       <div className="pt-8 pb-section">
-        {active && <QuizSet file={active} kind={kind} onKindChange={changeKind} />}
+        {active && <QuizSet config={active} filter={filter} onFilterChange={changeFilter} />}
       </div>
     </PageContainer>
   );

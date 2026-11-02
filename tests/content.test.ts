@@ -20,10 +20,12 @@ function collectBlocks(nodes: ContentNode[], out: Block[] = []): Block[] {
 }
 
 describe('real content', () => {
-  it('converts all five files without warnings', () => {
+  it('converts all seven files without warnings', () => {
     expect(result.files.map((file) => `${file.collection}/${file.key}`).sort()).toEqual([
+      'exam/final-ch1-6',
       'exam/quiz1-ch1-2',
       'exam/quiz2-ch3-4',
+      'exam/quiz3-ch5-6',
       'vocab/ch1-2',
       'vocab/ch3-4',
       'vocab/ch5-6',
@@ -68,17 +70,32 @@ describe('real content', () => {
   });
 
   it('points every exam pattern at a vocabulary group that exists', () => {
-    for (const link of PATTERN_LINKS) {
-      const file = result.files.find((item) => item.key === `ch${link.set}`);
-      const ids: string[] = [];
-      const visit = (nodes: ContentNode[]) => {
-        for (const node of nodes) {
-          ids.push(node.id);
-          visit(node.children);
-        }
-      };
-      visit(file?.nodes ?? []);
-      expect(ids).toContain(`vocab/ch${link.set}/${link.group}`);
+    for (const [exam, links] of Object.entries(PATTERN_LINKS)) {
+      expect(EXAM_FILES as readonly string[], exam).toContain(exam);
+      for (const link of links) {
+        const file = result.files.find((item) => item.key === `ch${link.set}`);
+        const ids: string[] = [];
+        const visit = (nodes: ContentNode[]) => {
+          for (const node of nodes) {
+            ids.push(node.id);
+            visit(node.children);
+          }
+        };
+        visit(file?.nodes ?? []);
+        expect(ids, `${exam} ${link.set} ${link.group}`).toContain(
+          `vocab/ch${link.set}/${link.group}`,
+        );
+      }
+    }
+  });
+
+  it('has a link for every pattern of the exam guides that list their patterns', () => {
+    const patternRows = (key: string) =>
+      collectBlocks(result.files.find((file) => file.key === key)?.nodes ?? [])
+        .filter((block) => block.t === 'table' && block.head.length === 4)
+        .flatMap((block) => (block.t === 'table' ? block.rows : []));
+    for (const [exam, links] of Object.entries(PATTERN_LINKS)) {
+      expect(links.length, exam).toBe(patternRows(exam).length);
     }
   });
 

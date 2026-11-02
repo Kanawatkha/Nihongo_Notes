@@ -38,7 +38,7 @@ web/
 ├─ .github/workflows/       ci.yml, deploy.yml
 ├─ content/                 SOURCE OF TRUTH (Markdown only)
 │  ├─ vocab/                ch1-2.md, ch3-4.md, ch5-6.md
-│  └─ exam/                 quiz1-ch1-2.md, quiz2-ch3-4.md
+│  └─ exam/                 quiz1-ch1-2.md, quiz2-ch3-4.md, quiz3-ch5-6.md, final-ch1-6.md
 ├─ scripts/build-content/   run.ts, index.ts, frontmatter.ts, parse.ts, classify.ts, tree.ts, validate.ts, project.ts, report.ts
 ├─ public/                  favicon.svg, PWA icons, robots.txt
 ├─ src/
@@ -98,7 +98,7 @@ app    ->  pages, components, config
 - Local component state only. No global store.
 - Selected set and the target group live in the hash query: `#/?set=3-4&g=2.2` (vocabulary) and `#/exam?set=3-4` (exam). No `set` or an unknown one means nothing is shown yet. Links from the exam page to vocabulary tables use this. `lib/setParam.ts` maps a file key (`ch3-4`, `quiz2-ch3-4`) to the value (`3-4`).
 - The share dialog is local state of the navbar.
-- Stored in the browser: the service worker cache, a one-time scroll position used across an automatic update reload (`sessionStorage`, see `DEPLOY.md`), and whether the contents rail is open (`localStorage` key `nihongo-contents-open`, optional, the page works without it).
+- Stored in the browser: the service worker cache, a one-time scroll position used across an automatic update reload (`sessionStorage`, see `DEPLOY.md`), whether the contents rail is open (`localStorage` key `nihongo-contents-open`) and the quiz options, the own birthday and the random-day switch (`nihongo-quiz-settings`). Both are optional: the pages work without storage, and each device keeps its own values.
 
 ## 7. Routing
 
@@ -139,7 +139,7 @@ app    ->  pages, components, config
 
 | Want to add | Do this |
 |---|---|
-| Exam guide for chapters 5-6 | Add `content/exam/quiz3-ch5-6.md` and register it in `EXAM_FILES` in `config/site.ts`; the exam page gains a chip automatically. The vocabulary (`ch5-6.md`) and the quiz are already there |
+| A further exam guide (quiz 4...) | Add `content/exam/quizN-chX-Y.md`, register it in `EXAM_FILES` in `config/site.ts` and add its links to `PATTERN_LINKS` (keyed by the exam file key); the exam page gains a chip automatically |
 | A new Markdown construct | Extend `parse.ts`/`classify.ts` and `types.ts`, add a block component and tests, document it in `CONTENT-SCHEMA.md` |
-| Quiz for chapters 5-6 | Add an entry to `QUIZ_SETS` in `config/quiz.ts` (kinds, section numbers, question sentences copied from the slides); `lib/readings56.ts` holds the readings that the chapter 5-6 cards generate (counters, months, days, weekdays, years, verb forms); `tests/readings56.test.ts` checks every one against the tables of `ch5-6.md`; `tests/quiz.test.ts` checks that every question appears in the slides |
+| A quiz set (exam guide or chapters) | Add an entry to `QUIZ_SETS` in `config/quiz.ts` (kinds, section numbers, question sentences copied from the slides); `lib/readings56.ts` holds the readings that the chapter 5-6 cards generate (counters, months, days, weekdays, years, verb forms); `tests/readings56.test.ts` checks every one against the tables of `ch5-6.md`; `tests/quiz.test.ts` checks that every question appears in the slides |
 | A design token | Not allowed. `DESIGN-cohere.md` is fixed |

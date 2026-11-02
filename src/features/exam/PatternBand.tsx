@@ -4,7 +4,7 @@ import { TipCallout } from '@/components/content/TipCallout';
 import { Reveal } from '@/components/motion/Reveal';
 import { ButtonLink } from '@/components/ui/Button';
 import type { ContentNode, Inline } from '@/content/types';
-import { PATTERN_LINKS, UI_TEXT } from '@/config/site';
+import { PATTERN_LINKS, UI_TEXT, type PatternLink } from '@/config/site';
 import { plainText } from '@/lib/text';
 import { isPatternTable, splitQuestion } from './examBlocks';
 
@@ -41,11 +41,12 @@ function AnswerText({ inlines }: { inlines: Inline[] }) {
 type PatternCardProps = {
   row: Inline[][];
   index: number;
+  links: readonly PatternLink[] | undefined;
 };
 
-function PatternCard({ row, index }: PatternCardProps) {
+function PatternCard({ row, index, links }: PatternCardProps) {
   const { question, hint } = splitQuestion(row[1] ?? []);
-  const link = PATTERN_LINKS[index];
+  const link = links?.[index];
   return (
     <li>
       <Reveal delay={(index % 3) * 0.08} className="h-full">
@@ -98,6 +99,8 @@ export function PatternBand({ node }: PatternBandProps) {
   const table = node.blocks.find(isPatternTable);
   const tips = node.blocks.filter((block) => block.t === 'tip');
   if (!table) return null;
+  // node ids start with the collection and file key: `exam/quiz2-ch3-4/...`
+  const links = PATTERN_LINKS[node.id.split('/')[1] ?? ''];
 
   return (
     <div className="mt-12 rounded-lg bg-deep-green p-6 text-on-dark md:p-12 lg:p-20">
@@ -106,7 +109,7 @@ export function PatternBand({ node }: PatternBandProps) {
       </h3>
       <ul className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {table.rows.map((row, index) => (
-          <PatternCard key={index} row={row} index={index} />
+          <PatternCard key={index} row={row} index={index} links={links} />
         ))}
       </ul>
       {tips.map((tip, index) => (

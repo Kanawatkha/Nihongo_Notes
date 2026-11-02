@@ -42,6 +42,14 @@ function loadContentById(id: string): Promise<ContentFile> {
   return loadContent(collection as ContentCollection, key ?? '');
 }
 
+/** `vocab/ch1-2,ch3-4`: several files of one collection, loaded together. */
+function loadManyById(id: string): Promise<ContentFile[]> {
+  const [collection, keys = ''] = id.split('/');
+  return Promise.all(
+    keys.split(',').map((key) => loadContent(collection as ContentCollection, key)),
+  );
+}
+
 function loadManifestAny(): Promise<Manifest> {
   return loadManifest();
 }
@@ -53,4 +61,12 @@ export function useContentFile(collection: ContentCollection, key: string): Remo
 
 export function useManifest(): Remote<Manifest> {
   return useRemote('manifest', loadManifestAny);
+}
+
+/** Several generated files at once, for example the three vocabulary files behind the final quiz. */
+export function useContentFiles(
+  collection: ContentCollection,
+  keys: readonly string[],
+): Remote<ContentFile[]> {
+  return useRemote(`${collection}/${keys.join(',')}`, loadManyById);
 }

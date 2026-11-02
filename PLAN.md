@@ -146,6 +146,21 @@ Requested by the user: the content of chapters 5 and 6 (no exam guide yet) in th
 - [x] Quiz: `lib/readings56.ts` and seven new card kinds (counters, month, day, weekday, full date with Thai-to-Christian year, verb form, sentences from the sentence tables); wide Thai prompts get a smaller size
 - [x] Tests: 16 for the readings against the ch5-6 tables, 9 for the cards, page tests for both pages
 
+## Change after Phase 8 - exam 3, final exam and a quiz that mirrors the exams (2 Nov 2026)
+
+Requested by the user after the lecturer's slides for exam 3 and the final exam arrived.
+
+- [x] `content/exam/quiz3-ch5-6.md` (4 Nov 2026: 5 words + 10 questions in 6 patterns) and `content/exam/final-ch1-6.md` (11 Nov 2026: listening 10 + speaking 15, the ten speaking patterns of exams 1-3, score table, listening topics, schedule). `EXAM_FILES` has four files; `PATTERN_LINKS` is now keyed by exam file so every pattern card links to the right vocabulary group
+- [x] Quiz sets are config (`QUIZ_SETS`): parts with points, only the patterns asked in the exam, a set for the final that merges the three vocabulary files. New cards: item + country, color/size + noun, `Sono ... kudasai`, date from a picture, birthday, today. The self-introduction of exam 1 is a part with five cards; `phone` is no longer a pattern of exam 1 (it is not asked)
+- [x] Quiz page: part chips with points, pattern chips per part, mix by points and questions per pattern, URL `?set=&part=&type=`
+- [x] The practice cards of chapter 5-6 that are not asked (month, day, weekday, full date, verb, sentence) stay in the code and tests but are not offered
+- [x] Not on the site: student names and exam order, the listening test (e-learning)
+
+## Change after Phase 8 - quiz options kept per device (2 Nov 2026)
+
+- [x] `วันนี้`: a switch for a random day (default: the date of the device). `วันเกิด`: the student sets the own birthday (day and month) and the card uses it. Both are remembered in `localStorage` (`nihongo-quiz-settings`), so each person and device has its own (`quizSettings.ts`, `QuizOptions.tsx`)
+- [x] Tests: 15 more (settings storage, cards with settings, switch and form on the page)
+
 ## Working agreements
 
 - One phase at a time. Report after each checklist group, then wait.

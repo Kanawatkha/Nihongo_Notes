@@ -9,7 +9,7 @@ Live site (after the first deploy): https://kanawatkha.github.io/Nihongo_Notes/
 | Page | Route | Source Markdown |
 |---|---|---|
 | คำศัพท์ (Vocabulary) | `#/` (`?set=1-2`, `?set=3-4` or `?set=5-6` chooses the set, nothing is open until then; `?g=2.2` opens a group) | `content/vocab/ch1-2.md`, `content/vocab/ch3-4.md`, `content/vocab/ch5-6.md` |
-| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` (`?set=1-2`, `?set=3-4`) |
+| แนวสอบ (Exam guide) | `#/exam` | `content/exam/quiz1-ch1-2.md`, `quiz2-ch3-4.md`, `quiz3-ch5-6.md` and `final-ch1-6.md` (`?set=1-2`, `3-4`, `5-6`, `1-6`) |
 | แบบทดสอบ (Flash-card quiz) | `#/quiz` (`?set=1-2` or `?set=3-4`, nothing is open until then; `?type=time` keeps one question kind) | the vocabulary file of the set, plus `src/config/quiz.ts` |
 
 - Each vocabulary file is one list grouped by topic, not by lecturer chapter: for บท 3-4 the parts are `1. คำศัพท์ตามหมวด`, `2. เวลา`, `3. ตัวเลขและเงิน`, `4. รูปประโยคและบทสนทนา`; บท 1-2 has words, pronunciation and grammar.
@@ -34,7 +34,7 @@ All text lives in Markdown under `content/`. Never edit generated files. Rules: 
 3. Preview with `npm run dev`.
 4. Commit and push to `main`. GitHub Actions checks, builds and publishes the site.
 
-Chapters 5-6 have a vocabulary file (`content/vocab/ch5-6.md`) and quiz cards but no exam guide yet. When the third exam is known: add `content/exam/quiz3-ch5-6.md`, register it in `EXAM_FILES` in `src/config/site.ts` and add its question links to `PATTERN_LINKS` (see `ARCHITECTURE.md` section 12).
+Adding the next exam (for example a quiz 4): add `content/exam/quizN-chX-Y.md` with `label` and `order`, register it in `EXAM_FILES` in `src/config/site.ts`, add its question links to `PATTERN_LINKS` (keyed by the exam file key) and, for the quiz page, a set in `QUIZ_SETS` in `src/config/quiz.ts` (see `ARCHITECTURE.md` section 12).
 
 ## Commands
 

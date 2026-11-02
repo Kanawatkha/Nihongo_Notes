@@ -1,3 +1,4 @@
+import { QUIZ_SETS } from '@/config/quiz';
 import { EXAM_FILES, VOCAB_FILES } from '@/config/site';
 import { setParamOf } from '@/lib/setParam';
 import type { ContentCollection, ContentFile, Manifest } from './types';
@@ -39,8 +40,13 @@ export function prefetchForRoute(hash: string): void {
     if (key) quiet(loadContent('exam', key));
     return;
   }
-  // The quiz page uses the vocabulary file of the chosen set
-  if (route === '/' || route === '' || route === '/quiz') {
+  if (route === '/quiz') {
+    // The quiz of a set is built from the vocabulary files listed in its config
+    const set = Object.values(QUIZ_SETS).find((item) => item.param === requested);
+    for (const key of set?.files ?? []) quiet(loadContent('vocab', key));
+    return;
+  }
+  if (route === '/' || route === '') {
     quiet(loadManifest());
     const key = VOCAB_FILES.find((file) => setParamOf(file) === requested);
     if (key) quiet(loadContent('vocab', key));

@@ -37,7 +37,7 @@ Two pages, client-side routes (`HashRouter`):
 | Page | Route | Source content |
 |---|---|---|
 | คำศัพท์ (Vocabulary) | `#/` with set switch `?set=1-2`, `?set=3-4` or `?set=5-6` (nothing is open until one is chosen) | `content/vocab/ch1-2.md`, `content/vocab/ch3-4.md`, `content/vocab/ch5-6.md` |
-| แนวสอบ (Exam guide) | `#/exam` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/exam/quiz1-ch1-2.md`, `content/exam/quiz2-ch3-4.md` |
+| แนวสอบ (Exam guide) | `#/exam` with set switch `?set=1-2` or `?set=3-4` (nothing is open until one is chosen) | `content/exam/quiz1-ch1-2.md`, `quiz2-ch3-4.md`, `quiz3-ch5-6.md`, `final-ch1-6.md` |
 
 | แบบทดสอบ (Flash-card quiz) | `#/quiz` (`?set=1-2` or `?set=3-4`, nothing is open until then; `?type=time` keeps one question kind) | the vocabulary file of the set, plus `src/config/quiz.ts` |
 
@@ -52,13 +52,13 @@ All words of the selected set as one list grouped by topic (places, things, ques
 Large chips, in order "บท 1-2" then "บท 3-4", choose what to show. Both pages start empty (a title and the prompt to choose) until a chip is pressed, so later chapters and exams are added by one more Markdown file. The choice is kept in the URL.
 
 ### F3 Exam guide page
-Exam facts (date, score split, time per person), the five question patterns with answer templates and examples, the worked examples from the lecturer's guide, and the reference tables needed to answer (time, phone, price). Each quiz (1: chapters 1-2, 2: chapters 3-4) is its own set chip with its own facts, patterns and examples.
+Exam facts (date, score split, time per person), the question patterns with answer templates and examples, the worked examples from the lecturer's guide, and the reference tables needed to answer (time, phone, price). Each quiz (1: chapters 1-2, 2: chapters 3-4) is its own set chip with its own facts, patterns and examples.
 
 ### F2b Share
 A coral button at the right end of the header opens a card with a QR code and the site link (copy button), over a blurred page. Same behavior as the Digital Logic Notes site.
 
 ### F5 Flash-card quiz (แบบทดสอบ)
-Choose a chapter set (บท 1-2, บท 3-4, บท 5-6; empty until chosen), optionally one question kind, then practise one card at a time, out loud, with no typing. Kinds follow the exam: บท 3-4 has Thai -> Japanese words, `Koko wa doko desuka?` (places), `Ima nan ji desuka?` (random times, gozen/gogo), the phone number question (random numbers), `Kore wa ikura desuka?` (random prices 100-99,999 yen) and the start-end time question (`Shigoto` / `Kaigi`). บท 1-2 has words, `Kore wa nan desuka?` (things), `Anohito wa dare desuka?` (jobs), `Anohito wa doko kara kimashitaka?` (countries), `Kore wa nan no zasshi desuka?` (languages), `Kochira wa nan desuka?` (places) and the phone number question. The card turns over (3D flip) to show the answer sentence, the spoken chunks with the number each stands for (irregular readings in coral) and a reminder from the exam guide. A dice button deals a new card; after looking at the answer the student marks "ตอบได้" or "ยังไม่ได้" (a word not known yet returns a few cards later). Only words and readings from the slides are used; generated readings are checked against the slide tables by tests.
+Choose a set: บท 1-2, บท 3-4, บท 5-6 (the three exams) or ปลายภาค (บท 1-6, the final speaking test); empty until chosen. Each set mirrors its exam guide: the parts of the exam as chips with their points (exam 1: แนะนำตัว 5, คำศัพท์ 5, ตอบคำถามจากรูป 5; exams 2 and 3: คำศัพท์ 5, ตอบคำถาม 10; final: สอบพูด 15), and for a part with several patterns one chip per question pattern that is asked in the exam (exam 1: 5, exam 2: 5, exam 3: 6, final: 10). Without a choice the random mix follows the exam: each part by its points, each pattern by how many questions it has (exam 3: two each for the country, color/size, order and picture-date questions, one each for birthday and today). Patterns of exam 3: `Kore wa doko no tokei desuka?` (item + flag), `Kore wa nan desuka?` (color or size + noun), `Irasshaimase!` (`Sono [noun] o [number] kudasai`, counters 1-10), `Kore wa nan gatsu nan nichi desuka?` (a date in the picture, month before day), `O tanjōbi wa ...` (own birthday: the card shows the form with a sample date) and `Kyō wa ...` (the date of the device today). The card turns over (3D flip) to show the answer sentence, the spoken chunks with the number each stands for (irregular readings in coral) and a reminder from the exam guide. A dice button deals a new card; after looking at the answer the student marks "ตอบได้" or "ยังไม่ได้" (a word not known yet returns a few cards later). Only words and readings from the slides are used; generated readings are checked against the slide tables by tests. The listening part of the final exam is not a card (it is done in e-learning). Two options are kept on the device of each student (`localStorage`, so each person and device has its own): for the `วันนี้` pattern a switch "สุ่มวัน" (off: the date of the device; on: a random day to practise with), and for the `วันเกิด` pattern a day and a month for the own birthday, which the card then uses.
 
 ### F4 Motion
 Restrained, meaningful animation: hero text reveal, rows fading up as they enter, sliding active indicator on chips and the contents rail, a slow romaji ticker strip, pattern cards that reveal question then answer. All of it disabled under `prefers-reduced-motion`. Details in `UI-SPEC.md` section 6.
@@ -101,7 +101,7 @@ Name "Nihongo Notes". Original mark (see `UI-SPEC.md` section 8). No Cohere, Ant
 ## 10. Later (not in this version)
 
 - Hide-meaning mode (cover Thai or romaji to self-test). Flash cards are done (F5).
-- Exam guide for chapters 5-6 (quiz 3): the vocabulary and the flash cards are in; the guide waits for the lecturer's exam format.
+- Listening practice for the final exam (the listening test is done in e-learning, not on this site).
 
 ## 11. Risks and open items
 

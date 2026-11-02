@@ -215,7 +215,8 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
                  แบบทดสอบ บท 3-4                           (product-display, compact hero)
       สุ่มโจทย์แบบเดียวกับสอบพูด ตอบออกเสียงเอง แล้วเปิดดูเฉลย
                  ( บท 1-2 )  ( บท 3-4 )                    (set chips, empty page until chosen)
-  (สุ่มทุกแบบ) (คำศัพท์) (สถานที่) (บอกเวลา) (เบอร์โทร) (ราคา) (เวลาเริ่ม-เลิก)   (kind chips)
+  (ทุกส่วน) (คำศัพท์ (5 คะแนน)) (ตอบคำถาม (10 คะแนน))                       (part chips)
+  (สุ่มทุกแบบ) (สถานที่) (บอกเวลา) (เบอร์โทร) (ราคา) (เวลาเริ่ม-เลิก)      (pattern chips)
                  ตอบได้ 3 · ยังไม่ได้ 1
   ┌──────────── deep-green card, radius 22 ────────────┐
   │ บอกเวลา                                   ข้อที่ 4 │
@@ -233,7 +234,9 @@ Counts in the wireframes (186 คำ, 64 คำ, ...) are placeholders; real num
 | Card back | White card with hairline border and soft shadow. "เฉลย · kind" and the prompt as mono labels, the question small, the answer sentence in `quiz-answer` (22/28/32 px, medium), other spellings ("หรือ ..."), then the spoken chunks as small tiles (number or Thai label above, romaji below); irregular readings get a coral border and dot. A pale-green "เคล็ดจำ" line repeats the exam guide reminder for time, phone, price and start-end cards |
 | Card size | Both faces share one grid cell, so the card is as tall as the taller face; min height 340/380/420 px; max width 720 px, centered |
 | Controls | Outline pill "ดูเฉลย" / "ดูโจทย์" (`aria-pressed`) and the coral pill "สุ่มข้อใหม่" with a dice icon. The self-check row (outline "ยังไม่ได้", primary "ตอบได้") keeps its space and fades in after the card turns, so nothing jumps |
-| Kind chips | Small pill chips like the contents chip row, wrapping and centered; "สุ่มทุกแบบ" deals about 40% words and 60% question patterns, like the exam |
+| Part chips | The parts of the exam with their points; shown when the set has more than one part (exam 1: แนะนำตัว, คำศัพท์, ตอบคำถามจากรูป; exams 2 and 3: คำศัพท์, ตอบคำถาม; the final has one part and no row). "ทุกส่วน" mixes the parts by their points |
+| Date options | Under the pattern chips, only for the chosen pattern. `วันนี้`: a switch "สุ่มวัน" (`role="switch"`, 48 x 28 px track, coral when on) with a line that says which mode is on. `วันเกิด`: two selects (day, month; the day list follows the month, 29 February is allowed) and a "ล้าง" button, saved as soon as both are chosen; a line says whether the birthday is saved on this device. A change deals a new card at once. Stored under `nihongo-quiz-settings` in `localStorage`; the page works without storage |
+| Pattern chips | One chip per question pattern asked in the exam, shown for the chosen part when it has several patterns (and directly for the final); "สุ่มทุกแบบ" mixes them by how many questions each has. In the final the chips are named by the exam they come from ("ครั้งที่ 2 · เวลา"). Small pill chips like the contents chip row, wrapping and centered. State in the URL: `?set=5-6&part=answer&type=counter` |
 
 ## 6. Motion
 

@@ -38,6 +38,8 @@ describe('ExamPage', () => {
     expect(chips.map((chip) => chip.textContent)).toEqual([
       'สอบครั้งที่ 1 (บท 1-2)',
       'สอบครั้งที่ 2 (บท 3-4)',
+      'สอบครั้งที่ 3 (บท 5-6)',
+      'สอบปลายภาค (บท 1-6)',
     ]);
     expect(chips.every((chip) => chip.getAttribute('aria-pressed') === 'false')).toBe(true);
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
@@ -91,7 +93,7 @@ describe('ExamPage', () => {
       'Shigoto wa nanji kara nanji made desuka?',
     ];
     for (const question of questions) {
-      expect(screen.getByRole('heading', { level: 4, name: question })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: question })).toBeInTheDocument();
     }
     const links = screen
       .getAllByRole('link', { name: 'ดูตาราง' })
@@ -117,5 +119,56 @@ describe('ExamPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Ichi man hassen en desu.', { selector: 'li' })).toBeInTheDocument();
     expect(screen.getByText('090-7423-9105', { selector: 'li' })).toBeInTheDocument();
+  });
+
+  it('shows exam 3 with its six patterns and a link to the matching vocabulary group', async () => {
+    renderPage('/exam?set=5-6');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+      'สอบพูดครั้งที่ 3 (บท 5-6)',
+    );
+    expect(screen.getByText(/พุธ 4 พ\.ย\. 2569 · 15 คะแนน/)).toBeInTheDocument();
+    const questions = [
+      'Kore wa doko no tokei desuka?',
+      'Kore wa nan desuka?',
+      'Irasshaimase!',
+      'Kore wa nan gatsu nan nichi desuka?',
+      'O tanjōbi wa nan gatsu nan nichi desuka?',
+      'Kyō wa nan gatsu nan nichi desuka?',
+    ];
+    for (const question of questions) {
+      expect(await screen.findByRole('heading', { level: 4, name: question })).toBeInTheDocument();
+    }
+    const links = screen
+      .getAllByRole('link', { name: 'ดูตาราง' })
+      .map((a) => a.getAttribute('href'));
+    expect(links).toEqual([
+      '/?set=5-6&g=1.2',
+      '/?set=5-6&g=1.3',
+      '/?set=5-6&g=2.4',
+      '/?set=5-6&g=3.4',
+      '/?set=5-6&g=3.3',
+      '/?set=5-6&g=3.4',
+    ]);
+    expect(
+      screen.getByText('Sono ringo o muttsu kudasai', { selector: 'td, li, p, span' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the final exam: listening and speaking parts, ten patterns linked to all three sets', async () => {
+    renderPage('/exam?set=1-6');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+      'สอบการฟังและการพูดปลายภาค (บท 1-6)',
+    );
+    expect(screen.getByText(/พุธ 11 พ\.ย\. 2569 · 25 คะแนน/)).toBeInTheDocument();
+    expect(await screen.findByText('ทดสอบการฟัง')).toBeInTheDocument();
+    expect(screen.getByText('ทดสอบการพูด (ตอบคำถาม)')).toBeInTheDocument();
+    const links = screen
+      .getAllByRole('link', { name: 'ดูตาราง' })
+      .map((a) => a.getAttribute('href'));
+    expect(links).toHaveLength(10);
+    expect(links.filter((href) => href?.includes('set=1-2'))).toHaveLength(3);
+    expect(links.filter((href) => href?.includes('set=3-4'))).toHaveLength(4);
+    expect(links.filter((href) => href?.includes('set=5-6'))).toHaveLength(3);
+    expect(screen.getByText('13.5 คะแนน', { exact: false })).toBeTruthy();
   });
 });
